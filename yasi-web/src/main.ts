@@ -6,6 +6,7 @@
 
 // Components
 import App from './App.vue'
+import '@/assets/style.css'
 
 // Composables
 import { createApp } from 'vue'
