@@ -1,4 +1,50 @@
 <template>
+
+<v-row>
+  <v-col cols="8">
+  </v-col>
+  <v-col cols="4">
+    <v-expansion-panels class="ma-5">
+        <v-expansion-panel
+            title="Groups"
+            text="">
+                <v-expansion-panel-text>
+                <v-text-field
+                    class=""
+                    v-model="searchQuery"
+                    clearable
+                    append-inner-icon="mdi-magnify"
+                    hide-details="auto"
+                    label="Search"
+                ></v-text-field>
+                <div v-for="group in groups" :key="group.id" >
+                <v-card class="my-3">
+                    <template v-slot:title >
+                        <div class="groupClassTitle">
+                            <!-- <img src="@/assets/marker.svg" alt="marker"> -->
+                            <p>{{ group.name }}</p>
+                            <v-icon class="ml-10"
+                            @click="showLights = !showLights"
+                            > mdi-chevron-down</v-icon>
+                        </div>
+                    </template>
+
+                    <!-- <v-card-text>
+                    This is content
+                    </v-card-text> -->
+                </v-card>
+                  <v-card v-if="showLights" v-for="light in group.lights"
+                  :title="light"
+                  class="lights">
+
+                  </v-card>
+                </div>
+            </v-expansion-panel-text>
+        </v-expansion-panel>
+    </v-expansion-panels>
+  </v-col>
+</v-row>
+
   <div class="background-image">
   <v-container class="d-flex justify-center">
     <v-btn @click="isVisible = !isVisible">{{ isVisible === true ? 'hide' : 'show' }}</v-btn>
@@ -96,6 +142,10 @@ const model = ref<number[]>([])
 console.log(model.value)
 const isVisible = ref(true)
 
+const searchQuery = ""
+const showLights = ref(false)
+const groups = [{id: 0, name: 'skupina 1', lights: ['x', 'y']}, {id: 1, name: 'skupina 2', lights: ['z', 'e']}]
+
 </script>
 
 <style scoped>
@@ -123,12 +173,12 @@ section {
   0% {
     opacity: 0;
     filter: blur(5px);
-    transform: translateX(-100%);
+    transform: translateY(-100%);
   }
   100% {
     opacity: 1;
     filter: blur(0px);
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
@@ -136,6 +186,32 @@ section {
   background-image: url("../assets/bg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.groupClassTitle {
+    display: flex;
+    align-items: center;
+}
+
+.groupClassTitle p {
+    margin-left: 15px;
+}
+
+.lights {
+  margin-left: 20px;
+  animation: all 0.5s;
+  color: red
+
+}
+
+.lights:nth-child(2){
+  animation-duration: 500ms;
+  color: blue;
+}
+
+.lights:nth-child(3){
+  animation-duration: 1000ms;
+  color: blue;
 }
 
 </style>
