@@ -15,6 +15,16 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/groups',
+    component: Default,
+    children: [
+      {path: '',
+      name: 'Groups',
+      component: () => import('@/views/Groups.vue')
+    },
+    ],
+  }
 ]
 
 const router = createRouter({
