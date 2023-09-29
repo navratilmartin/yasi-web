@@ -1,7 +1,6 @@
-<!-- TODO lights array scrollable -->
-<!-- expansion panel border-radius doesnt work, looking ugly :( -->
 <script lang="ts" setup>
 import { computed, ref, watch, reactive} from 'vue'
+import draggable from 'vuedraggable'
 
     interface Light {
         id: string
@@ -81,90 +80,38 @@ import { computed, ref, watch, reactive} from 'vue'
         editing.value = false
     }
 
-    const deleteLightById = (id: string) => {
-        groups.value.forEach(group => {
-            const indexToDelete = group.lights.findIndex(light => light.id === id)
-            if(indexToDelete !== -1){
-                group.lights.splice(indexToDelete, 1)
-            }
-        })
-    }
+    const draggedElement = ref<Light>({id: ''})
+    const originalGroup = ref<Group>({id: '', name: '', color: '', lights: []})
 
-    let draggedLight: Light = {id: ''};
-    let dragTarget: any = null;
-    const groupCards = ref(document.getElementsByClassName('v-card-title'))
-
-    const dragStart = (e: any) => {
-        draggedLight.id = e.target.textContent
-
-        // Passing dragTarget so i can remove it later
-        dragTarget = e.target
+    const startDrag = (e: any) => {
+        originalGroup.value = groups.value.find(group => group.lights.some(light => light.id === e.target.textContent)) || {id: '', name: '', color: '', lights: []}
+        groups.value.forEach(group => group.lights.find(light => {
+            if(light.id === e.target.textContent) 
+            draggedElement.value = light
+            return
+        }))
     }
 
     const allowDrop = (e: any) => {
         e.preventDefault()
     }
 
-    const dragDrop = (e: any) =>{
-        console.log('x', e.clientX, 'y', e.clientY)
-        // wantedGroup will fail if light IDs arent unique. Also if id of one light is included in another one (e.g. light1:light13)
-        const wantedGroup = groups.value.find(group => group.lights.some(light => e.target.textContent.includes(light.id)))
-        console.log('wantedGroupName', wantedGroup?.name)
-        console.log('wgl', wantedGroup?.lights)
-        console.log(e.target)
-        console.log(dragTarget.parentElement)
-
-        // If dragging and dropping in the same element
-        if(e.target === dragTarget.parentElement){
-            deleteLightById(draggedLight.id)
+    const dropItemIntoGroup = (e: any) =>  {
+        if(originalGroup.value.name !== e.target.parentElement.textContent){
+            console.log(draggedElement.value)
+            const wantedGroup = groups.value.find(group => group.name === e.target.parentElement.textContent)
+            wantedGroup?.lights.push(draggedElement.value)
+            originalGroup.value.lights.splice(originalGroup.value.lights.findIndex(light => light.id === draggedElement.value.id), 1)
         }
-
-        // Finding the index, which I want to insert the light behind
-        Array.from(groupCards.value).forEach(x => console.log('cardsPosition',x.getBoundingClientRect().y))
-        let indexToInsert: any = Array.from(groupCards.value).findIndex(htmlElemendCard => htmlElemendCard.getBoundingClientRect().y > e.clientY) 
-        indexToInsert = indexToInsert === -1 ? wantedGroup?.lights.length : indexToInsert
-        console.log('index', indexToInsert)
-
-        // Inserting the dropped light into the existing groups array
-        groups.value.find(group => group.name === wantedGroup?.name)?.lights.splice(indexToInsert, 0, draggedLight)
-
-        // Finally deleting the dragged element from the original array and removing the dragged target
-        unclassifiedLightsList.value.splice(unclassifiedLightsList.value.findIndex(light => light.id === draggedLight.id), 1)
-        dragTarget.remove()
-        draggedLight = {id: ''}
     }
 
-    const dragDropUnclassify = (e: any) => {
-        unclassifiedLightsList.value.push({id:  draggedLight.id})
-        console.log(unclassifiedLightsList)
-        console.log(e.target === dragTarget.parentElement)
-        // if(e.target === dragTarget.parentElement){
-        //     deleteLightById(draggedLight.id)
-        // }
-        deleteLightById(draggedLight.id)
-        draggedLight = {id: ''}
-        dragTarget.remove()
-    }
-
-    const getOffset = (e:any) => {
-    //     Array.from(groupCards.value).forEach(x => console.log(x.getBoundingClientRect().y))
-    //     console.log(e.target.textContent)
-    //     hoveredLight = {id: e.target.textContent}
-    //     console.log('hoveredlight',hoveredLight.id)
-    //     console.log(e.target.getBoundingClientRect())
-    //     onmousemove = function(e) {
-    //     console.log('mouse position',e.clientX, e.clientY)
-    // }
-    }
-    // TODO: pokud dropuju ve stejnym divu; ze skupin do unclassifiedLights - funkce deleteLightById; onhover na expansion panel, aby se otevrel; pretahovani lights do prazdne skupiny - vyhazuje error
+    // TODO
+    // Drag and drop transitions
+    // Dragging from unclassified lights to unopened group - when dropping on the title, doesnt work propperly
 </script>
 
 <template>
-    <v-row>
-        <v-col cols="6">
-        </v-col>
-        <v-col cols="12" md="4">
-                <v-btn
+        <v-btn
         color="primary"
         @click="addGroup()">
             Add group
@@ -226,60 +173,58 @@ import { computed, ref, watch, reactive} from 'vue'
                     append-inner-icon="mdi-magnify"
                     hide-details="auto"
                     label="Search"
+                    
                 ></v-text-field>
                 <v-expansion-panels
                 v-model="openPanels">
+                <!-- <draggable v-model="filteredGroups" @end="handleDragEnd" item-key=id> -->
+                    <!-- <template #item="{element: group}"> -->
                     <v-expansion-panel v-for="group in filteredGroups" :key="group.id" :value="group.name"
-                        class="my-2">
+                        class="my-2"
+                        @dragover="allowDrop"
+                        @drop="dropItemIntoGroup">
                         <template #title>
-                            <div class= "d-flex align-center" style="flex-grow: 1;"  @dragover.stop>
+                            <div class= "d-flex align-center" style="flex-grow: 1;">
                                 <!-- <img src="@/assets/marker.svg" alt="marker" height="50"> -->
                                 <p class="ml-6">{{ group.name }}</p>
                                 <v-icon icon="mdi-pen" class="ml-auto mr-2 onHoverIcon" @click.stop="editGroup(group)"/>
                             </div>
                         </template>
                         <template #text class="">
-                    <div
-                    @dragstart="dragStart($event)"
-                    @dragover="allowDrop($event)"
-                    @drop="dragDrop($event)"
-                    class="pt-3 px-6 pb-4">
-                            <v-card v-for="light in group.lights" :key="light.id"
-                            :class="{ 'selected-card': light.id.toLowerCase() === searchQuery.toLowerCase(), 'x': true }"
-                            variant="outlined"
+                    <div class="pt-3 px-6 pb-4" @drop.stop>
+                        <draggable :list="group.lights" class="list-group" item-key="id"  @dragstart="startDrag" group="lights">
+                            <template #item="{element: light}">
+                            <v-card :key="light.id"
+                            :class="{ 'selected-card': light.id.toLowerCase() === searchQuery.toLowerCase()}"
+                            variant="outlined" 
                             style="background-color: white; margin-bottom: 12px;"
-                            draggable="true"
                             @drop.stop>
-                                <v-card-title class="d-flex"
-                                @mouseover="getOffset($event)">
-                                    <!-- <img src="@/assets/marker.svg"  -->
-                                    <!-- alt="marker"
-                                    height="30"
-                                    @mouseover.stop=""> -->
-                                    <p class="ml-4" @mouseover.stop>{{ light.id }}</p>
+                                <v-card-title class="d-flex">
+                                    <!-- <img src="@/assets/marker.svg" 
+                                    alt="marker"
+                                    height="30"> -->
+                                    <p class="ml-4">{{ light.id }}</p>
                                     <v-icon icon="mdi-pen" class="ml-auto mr-2"/>
                                 </v-card-title>
                             </v-card>
+                            </template>
+                        </draggable>
                             </div>
                         </template>
                     </v-expansion-panel>
                 </v-expansion-panels>
-                <div class="d-flex justify-space-evenly"
-                    @dragover="allowDrop($event)"
-                    @drop="dragDropUnclassify($event)">
-                    <v-card v-for="light in unclassifiedLightsList"
-                        class="d-flex align-center justify-center ma-1 y" width="30%"
-                        draggable="true"
-                        @dragstart="dragStart($event)"
-                        @dragover.stop>
-                        {{ light.id }}
+                <div class="justify-space-evenly">
+                    <draggable :list="unclassifiedLightsList" class="list-group" group="lights">
+                        <template #item="{element: light}">
+                    <v-card :key="light.id"
+                        class="d-flex align-center justify-center ma-1 y" width="30%">
+                        <p>{{ light.id }}</p>
                     </v-card>
+                    </template>
+                    </draggable>
                 </div>
             </v-card-text>
         </v-card>
-        </v-col>
-
-    </v-row>
 </template>
 
 <style> 
@@ -340,18 +285,6 @@ import { computed, ref, watch, reactive} from 'vue'
 .onHoverIcon:not(:hover){
     transition: transform 0.5s ease;
     color: black;
-}
-
-.x {
-    color: blue;
-    background-color: red;
-}
-
-.y {
-    color: green;
-    background-color: red;
-    margin: 50px;
-    border: 5px black solid;
 }
 
 </style>
