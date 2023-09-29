@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch, reactive} from 'vue'
 import draggable from 'vuedraggable'
+import DisplayGroup from '@/components/DisplayLights.vue'
 
     interface Light {
         id: string
@@ -14,7 +15,7 @@ import draggable from 'vuedraggable'
     }
 
     const groupColors = ['Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Brown', 'Grey', 'Black']
-    const unclassifiedLightsList = ref<Light[]>([{id: 'svetlo1'}, {id: 'svetlo2'}, {id: 'svetlo3'}, {id: 'svetlo4'}, {id: 'svetlo5'}, {id: 'svetlo6'}, {id: 'svetlo7'}, {id: 'svetlo8'}, {id: 'svetlo9'}])
+    const unassignedLights = ref<Light[]>([{id: 'svetlo1'}, {id: 'svetlo2'}, {id: 'svetlo3'}, {id: 'svetlo4'}, {id: 'svetlo5'}, {id: 'svetlo6'}, {id: 'svetlo7'}, {id: 'svetlo8'}, {id: 'svetlo9'}])
     const props = defineProps<{
         groups: Group[]
     }>()
@@ -83,13 +84,22 @@ import draggable from 'vuedraggable'
     const draggedElement = ref<Light>({id: ''})
     const originalGroup = ref<Group>({id: '', name: '', color: '', lights: []})
 
-    const startDrag = (e: any) => {
+    const startDragLightsWithGroup = (e: any) => {
         originalGroup.value = groups.value.find(group => group.lights.some(light => light.id === e.target.textContent)) || {id: '', name: '', color: '', lights: []}
         groups.value.forEach(group => group.lights.find(light => {
-            if(light.id === e.target.textContent) 
+            if(light.id === e.target.textContent){
             draggedElement.value = light
-            return
+            return}
         }))
+        console.log(originalGroup.value)
+        console.log(draggedElement.value)
+    }
+
+    const startDragunassignedLights = (e: any) => {
+        draggedElement.value = unassignedLights.value.find(light => light.id === e.target.textContent) || {id: ''}
+        originalGroup.value = {id: '', name: '', color: '', lights: []}
+        console.log(originalGroup.value)
+        console.log(draggedElement.value)
     }
 
     const allowDrop = (e: any) => {
@@ -98,19 +108,34 @@ import draggable from 'vuedraggable'
 
     const dropItemIntoGroup = (e: any) =>  {
         if(originalGroup.value.name !== e.target.parentElement.textContent){
-            console.log(draggedElement.value)
             const wantedGroup = groups.value.find(group => group.name === e.target.parentElement.textContent)
-            wantedGroup?.lights.push(draggedElement.value)
-            originalGroup.value.lights.splice(originalGroup.value.lights.findIndex(light => light.id === draggedElement.value.id), 1)
+            // unshift funguje krasne podle zadani (davat lights dropnuty na skupinu na zacatek pole), ale mozna se na to vysrat a pushovat je na konec?
+            wantedGroup?.lights.unshift(draggedElement.value)
+            console.log(originalGroup.value)
+            console.log(draggedElement.value)
+            // If originalGroup.value.name === '', then the dragged light is from unassignedLights array
+            if(originalGroup.value.name === ''){
+                unassignedLights.value.splice(unassignedLights.value.findIndex(light => light.id === draggedElement.value.id), 1)
+            }
+            else{
+                console.log(originalGroup.value.lights.findIndex(light => light.id === draggedElement.value.id))
+                originalGroup.value.lights.splice(originalGroup.value.lights.findIndex(light => light.id === draggedElement.value.id), 1)
+            }
         }
+    }
+
+    const dialogSelectedLights = ref<Light[]>([])
+
+    const updateDialogSelectedLights =  (selectedLights: Light[]) => {
+        dialogSelectedLights.value = selectedLights
     }
 
     // TODO
     // Drag and drop transitions
-    // Dragging from unclassified lights to unopened group - when dropping on the title, doesnt work propperly
 </script>
 
 <template>
+    <p> {{ dialogSelectedLights }} </p>
         <v-btn
         color="primary"
         @click="addGroup()">
@@ -118,15 +143,14 @@ import draggable from 'vuedraggable'
             <v-dialog
                 v-model="groupDialog"
                 activator="parent"
-                max-width="1000px"
+                max-width="1500px"
             >
                 <v-card>
                     <v-card-title>
-                        <span class="text-h5">{{ editing ? 'Edit group' : 'Add group' }}</span>
+                        <span class="text-h5">{{ editing ? 'Edit group' : 'Create group' }}</span>
                     </v-card-title>
                     <v-card-text>
-                       <v-container>
-                            <v-row>
+                            <v-row class="mx-5">
                                 <v-col cols="12" md="4">
                                     <v-text-field
                                         v-model="groupFormVariables.name"
@@ -141,23 +165,29 @@ import draggable from 'vuedraggable'
                                         :items="groupColors"
                                     ></v-select>
                                 </v-col>
-                                <v-col cols="12" md="4">
-                                    <v-select
-                                    v-model="groupFormVariables.lights"
-                                    label="Select lights"
-                                    multiple
-                                    item-title= "id"
-                                    return-object
-                                    :items=unclassifiedLightsList>
-
-                                    </v-select>
+                            </v-row>
+                            <v-row class="mx-5">
+                                <v-col cols="12" md="9" class="d-flex align-center justify-center">
+                                    <p>mapa</p>
+                                </v-col>
+                                <v-col cols="12" md="3">
+                                    <v-sheet
+                                    class="d-flex flex-column flex-wrap justify-center px-11 pb-11 pt-7 rounded-lg" 
+                                    color="grey-lighten-3">
+                                    <h2 class="mx-auto">Streetlights</h2>
+                                    <DisplayGroup title="Unassigned" :lights="unassignedLights" :selected-lights="dialogSelectedLights" @updateSelectedLights="updateDialogSelectedLights"/>
+                                    <DisplayGroup v-for="group in groups" :key="group.id" 
+                                    :title="group.name" 
+                                    :lights="group.lights" 
+                                    :selected-lights="dialogSelectedLights"
+                                    @updateSelectedLights="updateDialogSelectedLights"/>
+                                </v-sheet>
                                 </v-col>
                             </v-row>
-                       </v-container>
                     </v-card-text>
                     <v-card-actions>
                         <v-btn color="primary" block @click="editing ? saveEditedGroup() : saveCreatedGroup()">
-                            {{ editing ? 'Save group' : 'Add group' }}
+                            {{ editing ? 'Save' : 'Create' }}
                         </v-btn>
                     </v-card-actions>
                 </v-card>
@@ -177,25 +207,27 @@ import draggable from 'vuedraggable'
                 ></v-text-field>
                 <v-expansion-panels
                 v-model="openPanels">
-                <!-- <draggable v-model="filteredGroups" @end="handleDragEnd" item-key=id> -->
-                    <!-- <template #item="{element: group}"> -->
                     <v-expansion-panel v-for="group in filteredGroups" :key="group.id" :value="group.name"
                         class="my-2"
                         @dragover="allowDrop"
                         @drop="dropItemIntoGroup">
                         <template #title>
-                            <div class= "d-flex align-center" style="flex-grow: 1;">
+                            <div class= "d-flex align-center " style="flex-grow: 1;">
                                 <!-- <img src="@/assets/marker.svg" alt="marker" height="50"> -->
                                 <p class="ml-6">{{ group.name }}</p>
                                 <v-icon icon="mdi-pen" class="ml-auto mr-2 onHoverIcon" @click.stop="editGroup(group)"/>
                             </div>
                         </template>
-                        <template #text class="">
+                        <template #text>
                     <div class="pt-3 px-6 pb-4" @drop.stop>
-                        <draggable :list="group.lights" class="list-group" item-key="id"  @dragstart="startDrag" group="lights">
+                        <draggable :list="group.lights" 
+                        class="list-group" 
+                        item-key="id"
+                        @dragstart="startDragLightsWithGroup" 
+                        group="lights">
                             <template #item="{element: light}">
                             <v-card :key="light.id"
-                            :class="{ 'selected-card': light.id.toLowerCase() === searchQuery.toLowerCase()}"
+                            :class="{ 'selected-card': light.id.toLowerCase() === searchQuery.toLowerCase(), 'list-group-item': true}"
                             variant="outlined" 
                             style="background-color: white; margin-bottom: 12px;"
                             @drop.stop>
@@ -213,8 +245,8 @@ import draggable from 'vuedraggable'
                         </template>
                     </v-expansion-panel>
                 </v-expansion-panels>
-                <div class="justify-space-evenly">
-                    <draggable :list="unclassifiedLightsList" class="list-group" group="lights">
+                <div class="justify-space-evenly" style="min-height: 80px;">
+                    <draggable :list="unassignedLights" class="list-group" @dragstart="startDragunassignedLights" group="lights" item-key="id">
                         <template #item="{element: light}">
                     <v-card :key="light.id"
                         class="d-flex align-center justify-center ma-1 y" width="30%">
@@ -286,5 +318,6 @@ import draggable from 'vuedraggable'
     transition: transform 0.5s ease;
     color: black;
 }
+
 
 </style>
