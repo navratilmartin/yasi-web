@@ -130,72 +130,92 @@ import DisplayGroup from '@/components/DisplayLights.vue'
         dialogSelectedLights.value = selectedLights
     }
 
+    const hideAssigned = ref(false)
+
     // TODO
     // Drag and drop transitions
 </script>
 
 <template>
+    <v-row>
+        <v-col cols="12" md="8">
+
+        </v-col>
+        <v-col cols="12" md="4">
     <p> {{ dialogSelectedLights }} </p>
-        <v-btn
-        color="primary"
-        @click="addGroup()">
-            Add group
-            <v-dialog
-                v-model="groupDialog"
-                activator="parent"
-                max-width="1500px"
-            >
-                <v-card>
-                    <v-card-title>
-                        <span class="text-h5">{{ editing ? 'Edit group' : 'Create group' }}</span>
-                    </v-card-title>
-                    <v-card-text>
-                            <v-row class="mx-5">
-                                <v-col cols="12" md="4">
-                                    <v-text-field
-                                        v-model="groupFormVariables.name"
-                                        label="Group name"
-                                        required
-                                    ></v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="4">
-                                    <v-select
-                                        v-model="groupFormVariables.color"
-                                        label="Group color"
-                                        :items="groupColors"
-                                    ></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row class="mx-5">
-                                <v-col cols="12" md="9" class="d-flex align-center justify-center">
-                                    <p>mapa</p>
-                                </v-col>
-                                <v-col cols="12" md="3">
-                                    <v-sheet
-                                    class="d-flex flex-column flex-wrap justify-center px-11 pb-11 pt-7 rounded-lg" 
-                                    color="grey-lighten-3">
-                                    <h2 class="mx-auto">Streetlights</h2>
-                                    <DisplayGroup title="Unassigned" :lights="unassignedLights" :selected-lights="dialogSelectedLights" @updateSelectedLights="updateDialogSelectedLights"/>
-                                    <DisplayGroup v-for="group in groups" :key="group.id" 
-                                    :title="group.name" 
-                                    :lights="group.lights" 
-                                    :selected-lights="dialogSelectedLights"
-                                    @updateSelectedLights="updateDialogSelectedLights"/>
-                                </v-sheet>
-                                </v-col>
-                            </v-row>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-btn color="primary" block @click="editing ? saveEditedGroup() : saveCreatedGroup()">
-                            {{ editing ? 'Save' : 'Create' }}
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </v-btn>
 
         <v-card style="background-color:#e4e4e4" class="">
-            <h2 class="mx-4 mt-2">Groups</h2>
+            <div class="d-flex justify-self-center mx-4 mt-3">
+                <h2 class="ml-2">Groups</h2>
+                <v-btn
+                    color="primary"
+                    class="ml-auto mr-2"
+                    @click="addGroup()">
+                        Add group
+                        <v-dialog
+                            v-model="groupDialog"
+                            activator="parent"
+                            max-width="1500px"
+                        >
+                            <v-card>
+                                <v-card-title>
+                                    <span class="text-h5">{{ editing ? 'Edit group' : 'Create group' }}</span>
+                                </v-card-title>
+                                <v-card-text>
+                                        <v-row class="mx-5">
+                                            <v-col cols="12" md="4">
+                                                <v-text-field
+                                                    v-model="groupFormVariables.name"
+                                                    label="Group name"
+                                                    required
+                                                ></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" md="4">
+                                                <v-select
+                                                    v-model="groupFormVariables.color"
+                                                    label="Group color"
+                                                    :items="groupColors"
+                                                ></v-select>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row class="mx-5">
+                                            <v-col cols="12" md="9" class="d-flex align-center justify-center">
+                                                <p>mapa</p>
+                                            </v-col>
+                                            <v-col cols="12" md="3">
+                                                <v-sheet
+                                                class="d-flex flex-column flex-wrap justify-center px-11 pb-11 pt-7 rounded-lg" 
+                                                color="grey-lighten-3">
+                                                <h2 class="mx-auto">Streetlights</h2>
+                                                <DisplayGroup title="Unassigned" :lights="unassignedLights" :selected-lights="dialogSelectedLights" @updateSelectedLights="updateDialogSelectedLights"/>
+                                                <div class="animateHideAssigned" v-if=hideAssigned>
+                                                    <DisplayGroup v-for="group in groups" :key="group.id" 
+                                                    :title="group.name" 
+                                                    :lights="group.lights" 
+                                                    :selected-lights="dialogSelectedLights"
+                                                    @updateSelectedLights="updateDialogSelectedLights"/>
+                                                </div>
+                                                <v-row class="d-flex align-center ma-0">
+                                                    <v-col cols="1" class="pl-2 progressCursor" >
+                                                        <v-divider class="border-opacity-100 " style="width:15px" color="primary"></v-divider>
+                                                    </v-col>
+                                                    <v-col cols="8" class="pa-0 pl-3 progressCursor">
+                                                        <p class="text-primary"  @click="hideAssigned=!hideAssigned">Hide assigned</p>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-sheet>
+                                            </v-col>
+                                        </v-row>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-btn color="primary" block @click="editing ? saveEditedGroup() : saveCreatedGroup()">
+                                        {{ editing ? 'Save' : 'Create' }}
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-dialog>
+                    </v-btn>
+                </div>
             <v-card-text>
                 <v-text-field
                     variant="outlined"
@@ -212,7 +232,7 @@ import DisplayGroup from '@/components/DisplayLights.vue'
                         @dragover="allowDrop"
                         @drop="dropItemIntoGroup">
                         <template #title>
-                            <div class= "d-flex align-center " style="flex-grow: 1;">
+                            <div class= "d-flex align-center flex-grow-1">
                                 <!-- <img src="@/assets/marker.svg" alt="marker" height="50"> -->
                                 <p class="ml-6">{{ group.name }}</p>
                                 <v-icon icon="mdi-pen" class="ml-auto mr-2 onHoverIcon" @click.stop="editGroup(group)"/>
@@ -257,6 +277,8 @@ import DisplayGroup from '@/components/DisplayLights.vue'
                 </div>
             </v-card-text>
         </v-card>
+    </v-col>
+    </v-row>
 </template>
 
 <style> 
@@ -319,5 +341,24 @@ import DisplayGroup from '@/components/DisplayLights.vue'
     color: black;
 }
 
+.progressCursor:hover {
+    cursor: pointer;
+}
 
+.animateHideAssigned {
+    animation: all 0.5s ease-in-out;
+}
+
+@keyframes all {
+  0% {
+    opacity: 0;
+    filter: blur(5px);
+    transform: translateX(-20%);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0);
+  }
+}
 </style>

@@ -35,7 +35,8 @@ const selectLightText = (e: any, light: Light) => {
   emit('updateSelectedLights', selectedLights.value)
   }
 
-
+// TODO
+// lepsi highlighting - takto nefunguje kdyz zapnu
 </script>
 
 <template>
@@ -43,7 +44,7 @@ const selectLightText = (e: any, light: Light) => {
       <v-card v-for="light in lights" :key="light.id"
       class="mb-3 bg-white rounded elevation-0"
       :class="{'selected': selectedLights.includes(light)}"
-        @click="selectLight($event, light)"
+        @click="selectLight($event, light)" 
         >
         <v-card-title class="d-flex">
           <!-- <img src="@/assets/marker.svg" 
