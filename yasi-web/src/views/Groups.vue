@@ -2,6 +2,7 @@
 import { computed, ref, watch, reactive} from 'vue'
 import draggable from 'vuedraggable'
 import DisplayGroup from '@/components/DisplayLights.vue'
+import { watchEffect } from 'vue';
 
     interface Light {
         id: string
@@ -26,7 +27,7 @@ import DisplayGroup from '@/components/DisplayLights.vue'
       {id: '2', name: 'Skupina 3', color: 'red', lights: [{id: 'l7'}, {id: 'l8'}, {id: 'l9'}]}])
     const openPanels = ref<string[]>([])
 
-    const groupDialog = ref(false)
+    const groupDialogIsOpen = ref(false)
 
     const groupFormVariables = reactive({
         id: '',
@@ -50,7 +51,7 @@ import DisplayGroup from '@/components/DisplayLights.vue'
         group.lights.some(light => light.id.toLowerCase() === searchQuery.value.toLowerCase()))?.name || '')
     })
 
-    const addGroup = () => {
+    const startAddingGroup = () => {
         groupFormVariables.id = Math.random().toString()
         groupFormVariables.name = ''
         groupFormVariables.color = ''
@@ -58,10 +59,10 @@ import DisplayGroup from '@/components/DisplayLights.vue'
         editing.value = false
     }
 
-    const editGroup = (group: Group) => {
+    const startEditingGroup = (group: Group) => {
         editingGroupId.value = group.id
         editing.value = true
-        groupDialog.value = true
+        groupDialogIsOpen.value = true
         groupFormVariables.id = group.id
         groupFormVariables.name = group.name
         groupFormVariables.color = group.color
@@ -69,15 +70,31 @@ import DisplayGroup from '@/components/DisplayLights.vue'
     }
 
     const saveCreatedGroup = () => {
-        groups.value.push({id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights: groupFormVariables.lights})
-        groupDialog.value = false
+        // REDO WITH OWN ALERT COMPONENT
+        if(groupFormVariables.name === ''){
+            alert('Group name cannot be empty')
+            return
+        }
+        if(groupFormVariables.lights.length === 0){
+            alert('Group must contain at least one light')
+            return
+        }
+        if(groups.value.some(group => group.name === groupFormVariables.name)){
+            alert('Group with this name already exists')
+            return
+        }   
+        if(groupFormVariables.color === ''){
+            groupFormVariables.color = 'primary'
+        }
+        groups.value.push({id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights:groupFormVariables.lights})
+        groupDialogIsOpen.value = false
         editing.value = false
     }
 
     const saveEditedGroup = () => {
         const groupIndex = groups.value.findIndex(group => group.id === editingGroupId.value)
         groups.value[groupIndex] = {id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights: groupFormVariables.lights}
-        groupDialog.value = false
+        groupDialogIsOpen.value = false
         editing.value = false
     }
 
@@ -124,11 +141,17 @@ import DisplayGroup from '@/components/DisplayLights.vue'
         }
     }
 
-    const dialogSelectedLights = ref<Light[]>([])
-
     const updateDialogSelectedLights =  (selectedLights: Light[]) => {
-        dialogSelectedLights.value = selectedLights
+        groupFormVariables.lights = selectedLights
     }
+
+    watchEffect(() => {
+        if(!groupDialogIsOpen.value){
+            console.log(groupFormVariables.lights)
+            console.log(groupFormVariables.lights)
+            groupFormVariables.lights = []
+        }
+    })
 
     const hideAssigned = ref(false)
 
@@ -142,7 +165,7 @@ import DisplayGroup from '@/components/DisplayLights.vue'
 
         </v-col>
         <v-col cols="12" md="4">
-    <p> {{ dialogSelectedLights }} </p>
+    <p> {{ groupFormVariables.lights }} </p>
 
         <v-card style="background-color:#e4e4e4" class="">
             <div class="d-flex justify-self-center mx-4 mt-3">
@@ -150,10 +173,10 @@ import DisplayGroup from '@/components/DisplayLights.vue'
                 <v-btn
                     color="primary"
                     class="ml-auto mr-2"
-                    @click="addGroup()">
+                    @click="startAddingGroup()">
                         Add group
                         <v-dialog
-                            v-model="groupDialog"
+                            v-model="groupDialogIsOpen"
                             activator="parent"
                             max-width="1500px"
                         >
@@ -187,12 +210,12 @@ import DisplayGroup from '@/components/DisplayLights.vue'
                                                 class="d-flex flex-column flex-wrap justify-center px-11 pb-11 pt-7 rounded-lg" 
                                                 color="grey-lighten-3">
                                                 <h2 class="mx-auto">Streetlights</h2>
-                                                <DisplayGroup title="Unassigned" :lights="unassignedLights" :selected-lights="dialogSelectedLights" @updateSelectedLights="updateDialogSelectedLights"/>
+                                                <DisplayGroup title="Unassigned" :lights="unassignedLights" :selected-lights="groupFormVariables.lights" @updateSelectedLights="updateDialogSelectedLights"/>
                                                 <div class="animateHideAssigned" v-if=hideAssigned>
                                                     <DisplayGroup v-for="group in groups" :key="group.id" 
                                                     :title="group.name" 
                                                     :lights="group.lights" 
-                                                    :selected-lights="dialogSelectedLights"
+                                                    :selected-lights="groupFormVariables.lights"
                                                     @updateSelectedLights="updateDialogSelectedLights"/>
                                                 </div>
                                                 <v-row class="d-flex align-center ma-0">
@@ -235,7 +258,7 @@ import DisplayGroup from '@/components/DisplayLights.vue'
                             <div class= "d-flex align-center flex-grow-1">
                                 <!-- <img src="@/assets/marker.svg" alt="marker" height="50"> -->
                                 <p class="ml-6">{{ group.name }}</p>
-                                <v-icon icon="mdi-pen" class="ml-auto mr-2 onHoverIcon" @click.stop="editGroup(group)"/>
+                                <v-icon icon="mdi-pen" class="ml-auto mr-2 onHoverIcon" @click.stop="startEditingGroup(group)"/>
                             </div>
                         </template>
                         <template #text>
