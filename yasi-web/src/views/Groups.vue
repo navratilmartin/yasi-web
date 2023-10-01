@@ -55,7 +55,7 @@ import { watchEffect } from 'vue';
         groupFormVariables.id = Math.random().toString()
         groupFormVariables.name = ''
         groupFormVariables.color = ''
-        groupFormVariables.lights = []
+        dialogSelectedLights.value = []
         editing.value = false
     }
 
@@ -66,7 +66,7 @@ import { watchEffect } from 'vue';
         groupFormVariables.id = group.id
         groupFormVariables.name = group.name
         groupFormVariables.color = group.color
-        groupFormVariables.lights = group.lights
+        dialogSelectedLights.value = JSON.parse(JSON.stringify(group.lights))
     }
 
     const saveCreatedGroup = () => {
@@ -75,7 +75,7 @@ import { watchEffect } from 'vue';
             alert('Group name cannot be empty')
             return
         }
-        if(groupFormVariables.lights.length === 0){
+        if(dialogSelectedLights.value.length === 0){
             alert('Group must contain at least one light')
             return
         }
@@ -86,14 +86,14 @@ import { watchEffect } from 'vue';
         if(groupFormVariables.color === ''){
             groupFormVariables.color = 'primary'
         }
-        groups.value.push({id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights:groupFormVariables.lights})
+        groups.value.push({id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights:dialogSelectedLights.value})
         groupDialogIsOpen.value = false
         editing.value = false
     }
 
     const saveEditedGroup = () => {
         const groupIndex = groups.value.findIndex(group => group.id === editingGroupId.value)
-        groups.value[groupIndex] = {id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights: groupFormVariables.lights}
+        groups.value[groupIndex] = {id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights: dialogSelectedLights.value}
         groupDialogIsOpen.value = false
         editing.value = false
     }
@@ -140,20 +140,21 @@ import { watchEffect } from 'vue';
             }
         }
     }
+    const dialogSelectedLights = ref<Light[]>([])
 
     const updateDialogSelectedLights =  (selectedLights: Light[]) => {
-        groupFormVariables.lights = selectedLights
+        dialogSelectedLights.value = selectedLights
     }
 
     watchEffect(() => {
         if(!groupDialogIsOpen.value){
+            console.log(dialogSelectedLights.value)
             console.log(groupFormVariables.lights)
-            console.log(groupFormVariables.lights)
-            groupFormVariables.lights = []
+            dialogSelectedLights.value = []
         }
     })
 
-    const hideAssigned = ref(false)
+    const hideAssigned = ref(true)
 
     // TODO
     // Drag and drop transitions
@@ -165,7 +166,7 @@ import { watchEffect } from 'vue';
 
         </v-col>
         <v-col cols="12" md="4">
-    <p> {{ groupFormVariables.lights }} </p>
+    <p> {{ dialogSelectedLights }} </p>
 
         <v-card style="background-color:#e4e4e4" class="">
             <div class="d-flex justify-self-center mx-4 mt-3">
@@ -210,12 +211,12 @@ import { watchEffect } from 'vue';
                                                 class="d-flex flex-column flex-wrap justify-center px-11 pb-11 pt-7 rounded-lg" 
                                                 color="grey-lighten-3">
                                                 <h2 class="mx-auto">Streetlights</h2>
-                                                <DisplayGroup title="Unassigned" :lights="unassignedLights" :selected-lights="groupFormVariables.lights" @updateSelectedLights="updateDialogSelectedLights"/>
+                                                <DisplayGroup title="Unassigned" :lights="unassignedLights" :selected-lights="dialogSelectedLights" @updateSelectedLights="updateDialogSelectedLights"/>
                                                 <div class="animateHideAssigned" v-if=hideAssigned>
                                                     <DisplayGroup v-for="group in groups" :key="group.id" 
                                                     :title="group.name" 
                                                     :lights="group.lights" 
-                                                    :selected-lights="groupFormVariables.lights"
+                                                    :selected-lights="dialogSelectedLights"
                                                     @updateSelectedLights="updateDialogSelectedLights"/>
                                                 </div>
                                                 <v-row class="d-flex align-center ma-0">
@@ -223,7 +224,7 @@ import { watchEffect } from 'vue';
                                                         <v-divider class="border-opacity-100 " style="width:15px" color="primary"></v-divider>
                                                     </v-col>
                                                     <v-col cols="8" class="pa-0 pl-3 progressCursor">
-                                                        <p class="text-primary"  @click="hideAssigned=!hideAssigned">Hide assigned</p>
+                                                        <p class="text-primary"  @click="hideAssigned=!hideAssigned">{{ hideAssigned ? 'Hide assigned' : 'Show assigned' }}</p>
                                                     </v-col>
                                                 </v-row>
                                             </v-sheet>
