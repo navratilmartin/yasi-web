@@ -66,10 +66,10 @@ import { watchEffect } from 'vue';
         groupFormVariables.id = group.id
         groupFormVariables.name = group.name
         groupFormVariables.color = group.color
-        // ERROR TO BE FIXED
         const groupLightsDeepCopy:Light[] = JSON.parse(JSON.stringify(group.lights))
-        const x = group.name
-        dialogSelectedLightsWithGroup.value = {groupLightsDeepCopy, x}
+        groupLightsDeepCopy.forEach(light => {
+            dialogSelectedLightsWithGroup.value.push({light: light, groupName: group.name})
+        })
     }
 
     const removeLightsFromGroups = (lightsAndGroups: Array<{light: Light, groupName: string}>) => {
