@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch, reactive} from 'vue'
 import draggable from 'vuedraggable'
-import DisplayGroup from '@/components/DisplayLights.vue'
+import DisplayGroup from '@/components/DisplayGroup.vue'
 import { watchEffect } from 'vue';
 
     interface Light {
@@ -66,7 +66,24 @@ import { watchEffect } from 'vue';
         groupFormVariables.id = group.id
         groupFormVariables.name = group.name
         groupFormVariables.color = group.color
-        dialogSelectedLights.value = JSON.parse(JSON.stringify(group.lights))
+        // ERROR TO BE FIXED
+        const groupLightsDeepCopy:Light[] = JSON.parse(JSON.stringify(group.lights))
+        const x = group.name
+        dialogSelectedLightsWithGroup.value = {groupLightsDeepCopy, x}
+    }
+
+    const removeLightsFromGroups = (lightsAndGroups: Array<{light: Light, groupName: string}>) => {
+        console.log('x')
+        lightsAndGroups.forEach(lightsAndGroup => {
+            if(lightsAndGroup.groupName === 'Unassigned') {
+                unassignedLights.value.splice(unassignedLights.value.findIndex(light => light.id === lightsAndGroup.light.id), 1)
+                return
+            }
+            const groupToBeDeletedFrom =  groups.value.find(group => group.name === lightsAndGroup.groupName) || {id: '', name: '', color: '', lights: []}
+            groupToBeDeletedFrom.lights.splice(groupToBeDeletedFrom.lights.findIndex(light => light.id === lightsAndGroup.light.id), 1)
+            console.log('aa',groupToBeDeletedFrom.lights)
+            console.log(groupToBeDeletedFrom.lights.findIndex(light => light.id === lightsAndGroup.light.id))
+        })
     }
 
     const saveCreatedGroup = () => {
@@ -75,7 +92,7 @@ import { watchEffect } from 'vue';
             alert('Group name cannot be empty')
             return
         }
-        if(dialogSelectedLights.value.length === 0){
+        if(dialogSelectedLightsWithGroup.value.length === 0){
             alert('Group must contain at least one light')
             return
         }
@@ -86,16 +103,19 @@ import { watchEffect } from 'vue';
         if(groupFormVariables.color === ''){
             groupFormVariables.color = 'primary'
         }
-        groups.value.push({id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights:dialogSelectedLights.value})
+        groups.value.push({id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights:dialogSelectedLightsWithGroup.value.map(lightAndGroup => lightAndGroup.light)})
         groupDialogIsOpen.value = false
         editing.value = false
+        removeLightsFromGroups(dialogSelectedLightsWithGroup.value)
     }
 
     const saveEditedGroup = () => {
         const groupIndex = groups.value.findIndex(group => group.id === editingGroupId.value)
-        groups.value[groupIndex] = {id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights: dialogSelectedLights.value}
+        groups.value[groupIndex] = {id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights:dialogSelectedLightsWithGroup.value.map(lightAndGroup => lightAndGroup.light)}
         groupDialogIsOpen.value = false
         editing.value = false
+        removeLightsFromGroups(dialogSelectedLightsWithGroup.value)
+
     }
 
     const draggedElement = ref<Light>({id: ''})
@@ -141,16 +161,17 @@ import { watchEffect } from 'vue';
         }
     }
     const dialogSelectedLights = ref<Light[]>([])
+    const dialogSelectedLightsWithGroup = ref<Array<{light: Light, groupName: string}>>([])
 
-    const updateDialogSelectedLights =  (selectedLights: Light[]) => {
-        dialogSelectedLights.value = selectedLights
+    const updateDialogSelectedLights =  (selectedLights: any) => {
+        dialogSelectedLightsWithGroup.value = selectedLights
     }
 
     watchEffect(() => {
         if(!groupDialogIsOpen.value){
             console.log(dialogSelectedLights.value)
             console.log(groupFormVariables.lights)
-            dialogSelectedLights.value = []
+            dialogSelectedLightsWithGroup.value = []
         }
     })
 
@@ -166,7 +187,7 @@ import { watchEffect } from 'vue';
 
         </v-col>
         <v-col cols="12" md="4">
-    <p> {{ dialogSelectedLights }} </p>
+    <p> {{ dialogSelectedLightsWithGroup }} </p>
 
         <v-card style="background-color:#e4e4e4" class="">
             <div class="d-flex justify-self-center mx-4 mt-3">
@@ -211,12 +232,12 @@ import { watchEffect } from 'vue';
                                                 class="d-flex flex-column flex-wrap justify-center px-11 pb-11 pt-7 rounded-lg" 
                                                 color="grey-lighten-3">
                                                 <h2 class="mx-auto">Streetlights</h2>
-                                                <DisplayGroup title="Unassigned" :lights="unassignedLights" :selected-lights="dialogSelectedLights" @updateSelectedLights="updateDialogSelectedLights"/>
+                                                <p> {{ dialogSelectedLightsWithGroup }} </p>
+                                                <DisplayGroup :group="{id: '0', name: 'Unassigned', color: 'priamry', lights: unassignedLights}" :selected-lights="dialogSelectedLightsWithGroup" @updateSelectedLights="updateDialogSelectedLights"/>
                                                 <div class="animateHideAssigned" v-if=hideAssigned>
                                                     <DisplayGroup v-for="group in groups" :key="group.id" 
-                                                    :title="group.name" 
-                                                    :lights="group.lights" 
-                                                    :selected-lights="dialogSelectedLights"
+                                                    :group="group"
+                                                    :selected-lights="dialogSelectedLightsWithGroup"
                                                     @updateSelectedLights="updateDialogSelectedLights"/>
                                                 </div>
                                                 <v-row class="d-flex align-center ma-0">

@@ -15,13 +15,13 @@ interface Group {
 
 
 const props = defineProps<{
-  lights: Array<Light>
-  title: string
-  selectedLights: Array<Light>
+  group: Group
+  selectedLights: Array<{light: Light, groupName: string}>
 }>()
 
+
 const lightsWithClass = computed(() => {
-  return props.lights.map((light: Light) => {
+  return props.group.lights.map((light: Light) => {
     return {
       content: light,
       class: selectedLights.value.includes(light) ? true :false
@@ -31,15 +31,24 @@ const lightsWithClass = computed(() => {
 
 const emit = defineEmits(['updateSelectedLights']);
 
-const selectedLights = ref<Light[]>(props.selectedLights)
+const actualGroupName = ref<string>(props.group.name)
+const selectedLights = ref<Light[]>(props.selectedLights.map(l => l.light))
 
 const selectLight = (e: any, light: Light) => {
+  const selectedLight = {
+    light: light,
+    groupName: actualGroupName.value}
   console.log('before', e.target.classList)
   e.target.classList.contains('selected') ? e.target.classList.remove('selected') : e.target.classList.add('selected')
-  const alreadyExistingLight = selectedLights.value.find(l => l.id === light.id ) 
-  alreadyExistingLight === undefined ? selectedLights.value.push(light) : selectedLights.value.splice(selectedLights.value.indexOf(alreadyExistingLight), 1) 
+  console.log(selectedLights.value)
+  const sel = props.selectedLights.map(l => l.light)
+  const alreadyExistingLight = sel.find(l => l.id === light.id ) 
+  alreadyExistingLight === undefined ? props.selectedLights.push(selectedLight) : props.selectedLights.splice(selectedLights.value.indexOf(alreadyExistingLight), 1) 
+  console.log('spatne', alreadyExistingLight)
+  props.group.lights.find(l => l.id === light.id)
+  console.log(props.selectedLights)
   
-  emit('updateSelectedLights', selectedLights.value)
+  emit('updateSelectedLights', props.selectedLights)
   console.log(e.target.classList)
 }
 
@@ -67,7 +76,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <h4 class="ml-2 my-2">{{ props.title }}</h4>
+    <h4 class="ml-2 my-2">{{ props.group.name }}</h4>
       <v-card v-for="light in lightsWithClass" :key="light.content.id" ref="lightRefs"
       class="x mb-3 bg-white rounded elevation-0"
       :class="{ 'selected': light.class }"
