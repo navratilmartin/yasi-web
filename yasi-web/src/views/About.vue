@@ -5,7 +5,17 @@
       
     </v-app-bar> -->
 
-    <section class="landing-page">
+    
+    <section class="">
+      <div id="fill" style="height: 100vh;"></div>
+      <div v-for="photo in photoList" :key=photo.value class="slide"
+      :class="{activeSlide: photo.value === selectedPhoto}">
+        <img 
+        :src="photo.value" 
+        alt="profile" >
+      </div>
+      <a href="your-url-here" class="circular-image" >
+      </a>
       <div class="menu ">
         <div class="menu-items">
           <div class="menu-item active" @click="defClick($event)">
@@ -31,7 +41,6 @@
           <div class="indicator"></div>
         </div>
       </div>
-      <!-- Place a big picture here -->
     </section>
 
     <v-main>
@@ -41,9 +50,8 @@
             <div>
               <img id='img' src="">
             </div>
-            <v-btn @click="loadRandomPhoto">Show Random Photo</v-btn>
             
-            <v-card class="pa-5">
+            <v-card class="pa-5 mt-5">
               <v-card-title class="text-h5">
                 Special Birthday Wishes!
               </v-card-title>
@@ -58,49 +66,244 @@
         <!-- Buttons for sending emails -->
         <v-row class="text-center mt-5">
           <v-col>
-            <v-btn color="primary" class="ma-2" @click="() => sendEmail('comeOver')">Tell Him to Come Over</v-btn>
+            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('comeOver')">Come Over</v-btn>
           </v-col>
           <v-col>
-            <v-btn color="secondary" class="ma-2" @click="() => sendEmail('buyFood')">Tell Him to Buy Something Good</v-btn>
+            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('buyFood')">Buy yummi</v-btn>
           </v-col>
-          <!-- Add more buttons here -->
+          <v-col>
+            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('call')">Call</v-btn>
+          </v-col>
+          <v-col>
+            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('<3')">💗</v-btn>
+          </v-col>
         </v-row>
+        <v-dialog
+          v-model="isDialogOpen"
+          width="800px"
+        >
+          <v-card>
+            <v-toolbar
+              color="primary"
+              class="pl-3"
+              :title=dialogContent.title
+            >
+              <v-spacer></v-spacer>
+              <v-btn icon @click="closeDialog()">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-toolbar>
+            <v-card-text>
+              <v-textarea v-model="dialogContent.message" label="Text zprávy"></v-textarea>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn color="primary" block @click="sendEmail(dialogContent.messageType, dialogContent.message)">Odešli zprávu</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="loading" persistent width="300">
+          <v-card>
+            <v-card-text class="text-center">
+              <v-progress-circular indeterminate color="primary"></v-progress-circular>
+              <div>Posílám email...</div>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+
+        <v-snackbar v-model="snackbar.show">
+          {{ snackbar.message }}
+          <v-btn class="ml-1" :color="snackbar.succesful ? 'green' : 'red'" @click="snackbar.show = false">Zavřít</v-btn>
+        </v-snackbar>
       </v-container>
+      <v-container>
+      <v-row justify="center">
+        <v-col cols="12" sm="6" md="4">
+          <v-text-field
+            v-model="userEmail"
+            label="Email"
+            type="email"
+            required
+          ></v-text-field>
+          <v-text-field
+            v-model="userPassword"
+            label="Password"
+            type="password"
+            required
+          ></v-text-field>
+
+          <v-btn color="primary" class="ma-2" @click="handleLogin">Sign In</v-btn>
+          <v-btn color="secondary" class="ma-2" @click="handleSignUp">Sign Up</v-btn>
+          <v-btn color="error" class="ma-2" @click="handleSignOut">Sign Out</v-btn>
+
+          <v-alert v-if="authError" type="error" class="mt-2">{{ authError }}</v-alert>
+        </v-col>
+      </v-row>
+    </v-container>
     </v-main>
 
-    <v-footer color="pink" app>
-      <span class="white--text">&copy; {{ new Date().getFullYear() }} Birthday Celebration</span>
+    <v-footer color="primary" app>
+      <span class="white--text">&copy; {{ date }} Birthday Celebration 🎁</span>
     </v-footer>
   </v-app>
 </template>
 
 <script lang="ts" setup>
-import { ref} from 'vue';
-// import axios from 'axios';
+import { ref, onUnmounted, reactive} from 'vue';
+import emailjs from 'emailjs-com';
+import { watchEffect } from 'vue';
+import { signIn, signUp, signOutUser } from '../services/firebase/firebaseAuthService';
+
+
+const userEmail = ref('');
+const userPassword = ref('');
+const authError = ref('');
+const user = ref();
+
+const handleLogin = async () => {
+  try {
+    user.value = await signIn(userEmail.value, userPassword.value);
+    console.log(user.value.type, user.value)
+    // Handle successful login
+    // You may want to redirect or update the UI accordingly
+  } catch (error: any) {
+    authError.value = error.message;
+  }
+};
+
+const handleSignUp = async () => {
+  try {
+    user.value = await signUp(userEmail.value, userPassword.value);
+    console.log(user.value)
+    // Handle successful sign up
+  } catch (error: any) {
+    authError.value = error.message;
+  }
+};
+
+const handleSignOut = async () => {
+  try {
+    await signOutUser();
+    // Handle successful sign out
+  } catch (error: any) {
+    authError.value = error.message;
+  }
+};
 
 const photoList = [
-  "/src/assets/bg-marble.jpg",
-  '/src/assets/photos/IMG_8309.jpg',
-  '/src/assets/photos/IMG_9318.jpg',
-  '/src/assets/photos/IMG_7297.jpg',
+  {value: '/src/assets/photos/IMG_8309.jpg'},
+  {value: '/src/assets/photos/IMG_9318.jpg'},
+  {value: '/src/assets/photos/IMG_7297.jpg'},
+  {value: 'src/assets/photos/IMG_20220124111201.PNG'},
+  {value: '/src/assets/photos/IMG_7932.JPEG'},
 ];
 
-const randomPhoto = ref('')
+let index = Math.floor(Math.random() * photoList.length);
+const selectedPhoto = ref(photoList[index].value);
+const selectNextPhoto = () => {
+  index = (index+1) % photoList.length;
+  selectedPhoto.value = photoList[index].value;
+}
+const intervalId = setInterval(selectNextPhoto, 5000);
 
-const loadRandomPhoto = () => {
-  const imgHtml = document.getElementById('img');
-  const randomIndex = Math.floor(Math.random() * photoList.length);
-  randomPhoto.value = photoList[randomIndex];
-  imgHtml?.setAttribute('src', randomPhoto.value);
-  console.log(imgHtml)
-  console.log(randomPhoto.value)
-  console.log(photoList)
+type MessageType = 'buyFood' | 'call' | 'comeOver' | '<3';
+interface DialogContent {
+    messageType: MessageType;
+    message: string;
+    title: string;
+}
+const isDialogOpen = ref(false);
+const dialogContent = reactive<DialogContent>({
+    messageType: '<3',
+    message: '',
+    title: '',
+});
+const closeDialog = () => {
+  isDialogOpen.value = false;
+  dialogContent.message = '';
+  dialogContent.messageType = '<3';
+}
+watchEffect(() => {
+  if(isDialogOpen.value === false){
+    dialogContent.message = '';
+    dialogContent.messageType = '<3';  }
+})
+
+const loading = ref(false);
+const snackbar = ref({
+  show: false,
+  message: '',
+  succesful: false,
+});
+
+const startSendingEmail = (messageType: MessageType) => {
+  dialogContent.messageType = messageType;
+  switch (messageType) {
+    case 'buyFood':
+      dialogContent.title = 'Koupit yummi';
+      break;
+    case 'call':
+      dialogContent.title = 'Call';
+      break;
+    case 'comeOver':
+      dialogContent.title = 'Come over';
+      break;
+    case '<3':
+      dialogContent.title = '<3';
+      break;
+    default:
+      dialogContent.title = '';
+      break;
+  }
+  isDialogOpen.value = true;
+}
+
+const sendEmail = (messageType: MessageType, message: string) => {
+  loading.value = true; 
+  isDialogOpen.value = false;
+  let messageTypeText = '';
+  switch (messageType) {
+    case 'buyFood':
+      messageTypeText = 'abys jí koupil něco mnam';
+      break;
+    case 'call':
+      messageTypeText = 'abys jí zavolal';
+      break;
+    case 'comeOver':
+      messageTypeText = 'abys přijel';
+      break;
+    case '<3':
+      messageTypeText = 'aby ses měl hezky';
+      break;
+    default:
+      messageTypeText = 'default';
+      break;
+  }
+  const templateParams = {
+    to_name: 'Martine',
+    from_name: 'Yasinky',
+    message_type_text: messageTypeText,
+    message: message,
+  };
+
+  emailjs.send('service_9b1mllp', 'template_frebc2d', templateParams, 'Z8UzH1aa-iMCUx0pi')
+    .then((response) => {
+      loading.value = false;
+      snackbar.value = { show: true, message: 'Email byl v pořádku odeslán! 🎉', succesful: true };
+      console.log('SUCCESS!', response.status, response.text);
+    }, (error) => {
+      loading.value = false;
+      snackbar.value = { show: true, message: 'Email se nepodařilo odeslat. 😵', succesful: false };
+      console.log('FAILED...', error);
+    });
 };
+
+const date = ref<string>(
+    `${new Date().getFullYear()} -- ${new Date().getHours()}:${new Date().getMinutes()} 🥳`
+);
 
 function defClick(event: any) {
   const menuItems = document.querySelectorAll('.menu-item');
     menuItems.forEach(item => item.classList.remove('active'));
-    console.log('click', event.target)
     event.target.classList.add('active');
 }
 
@@ -114,26 +317,9 @@ function defClickChild(event: any){
   }
 }
 
-// const menuItems = document.querySelectorAll('.menu-item');
-// console.log(menuItems)
-// menuItems.forEach(item => {
-//   item.addEventListener('click', () => {
-//     const menuItems = document.querySelectorAll('.menu-item');
-//     menuItems.forEach(item => item.classList.remove('active'));
-//     item.classList.add('active');
-//   });
-
-// })
-
-
-const sendEmail = async (action: string) => {
-  // try {
-  //   await axios.post('http://your-backend-url/email', { action });
-  //   console.log('Email request sent successfully');
-  // } catch (error) {
-  //   console.error('There was an error sending the email request', error);
-  // }
-};
+onUnmounted(() => {
+  clearInterval(intervalId);
+});
 </script>
 
 <style lang="scss">
@@ -145,7 +331,11 @@ $colors: #ed254e, #10c15c, #91c4f2, #9d79bc;
 // $active-color: nth($colors, 1);
 
 .menu {
+  position: absolute;
+  z-index: 1000;
   width: 600px;
+  top: 5px;
+  right: 5px;
   margin: 1rem;
   box-sizing: border-box;
   max-width: 100%;
@@ -205,15 +395,75 @@ $colors: #ed254e, #10c15c, #91c4f2, #9d79bc;
 }
 
 /* Landing Page Styles */
-.landing-page {
-  height: 100vh; /* Full viewport height */
-  background: url('@/assets/bg-marble.jpg') no-repeat center center; 
-  background-size: cover;
+
+@keyframes slideToLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-1%); /* Adjust this value as needed */
+  }
 }
 
-/* Ensure the main content starts below the viewport */
-.v-main {
+@keyframes slideBack {
+  0% {
+    transform: translateX(-1%); /* Adjust this value as needed */
+  }
+  100% {
+    transform: translateX(0);
+  }
+
 }
+
+.slide {
+  position: absolute;
+  inset: 0; 
+  opacity: 0;
+  scale: 1.11;
+  transition: 800ms opacity ease-in-out;
+  transition-delay: 800ms;
+  animation-delay: 1000ms;
+  animation: slideBack 600ms ease-in-out forwards;
+}
+
+.activeSlide {
+  opacity: 1;
+  transition-delay: 0ms;
+  scale: 1.11;
+  animation-delay: 1600ms;
+  animation: slideToLeft 5000ms linear forwards;
+}
+
+.slide > img {
+  width: 100vw;
+  height: 100vh;
+  object-position: 50% 80%;
+  object-fit: cover;
+  display: block;
+}
+
+.headerPhoto {
+  width: 100vw;
+  height: 100vh;
+  object-position: 50% 80%;
+  object-fit: cover;
+  opacity: 0;
+  display: block;
+}
+
+.circular-image {
+  border-radius: 50%;
+  position: fixed;
+  overflow: hidden;
+  background: url('@/assets/photos/B2DCB4B0-7CDF-40EF-B6F6-377075B3C04C.JPEG') no-repeat center center; 
+  background-size: cover;
+  height: 100px;
+  width: 100px;
+  top: 15px;
+  left: 15px;
+
+}
+
 .ma-2 {
   margin: 8px;
 }

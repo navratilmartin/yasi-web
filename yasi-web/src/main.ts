@@ -19,3 +19,5 @@ const app = createApp(App)
 registerPlugins(app)
 
 app.mount('#app')
+// const cors = require('cors');
+// app.use(cors());

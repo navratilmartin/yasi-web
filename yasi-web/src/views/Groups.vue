@@ -1,409 +1,150 @@
-<script lang="ts" setup>
-import { computed, ref, watch, reactive} from 'vue'
-import draggable from 'vuedraggable'
-import DisplayGroup from '@/components/DisplayGroup.vue'
-import { watchEffect } from 'vue';
-
-    interface Light {
-        id: string
-    }
-
-    interface Group {
-        id: string
-        name: string
-        color: string
-        lights: Light[]
-    }
-
-    const groupColors = ['Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Brown', 'Grey', 'Black']
-    const unassignedLights = ref<Light[]>([{id: 'svetlo1'}, {id: 'svetlo2'}, {id: 'svetlo3'}, {id: 'svetlo4'}, {id: 'svetlo5'}, {id: 'svetlo6'}, {id: 'svetlo7'}, {id: 'svetlo8'}, {id: 'svetlo9'}])
-    const props = defineProps<{
-        groups: Group[]
-    }>()
-
-    const searchQuery = ref('')
-    const groups = ref<Group[]>([{id: '0', name: 'Skupina 1', color: 'red', lights: [{id: 'l1'}, {id: 'l2'}, {id: 'l3'}]},
-      {id: '1', name: 'Skupina 2', color: 'red', lights: [{id: 'l4'}, {id: 'l5'}, {id: 'l6'}]}, 
-      {id: '2', name: 'Skupina 3', color: 'red', lights: [{id: 'l7'}, {id: 'l8'}, {id: 'l9'}]}])
-    const openPanels = ref<string[]>([])
-
-    const groupDialogIsOpen = ref(false)
-
-    const groupFormVariables = reactive({
-        id: '',
-        name: '',
-        color: '',
-        lights: <Light[]>[]
-    })
-    const editing = ref(false)
-    const editingGroupId = ref('')
-    
-    const filteredGroups = computed(() => {
-        const searchQueryLower = searchQuery.value.toLowerCase()
-        const isGroupId = (group: Group) => {return group.name.toLowerCase().includes(searchQueryLower)}
-        const isLightId = (group: Group) => {return group.lights.some(light => light.id.toLowerCase().includes(searchQueryLower))}
-        return groups.value.filter(group => isGroupId(group) || isLightId(group))
-    })
-
-    watch(filteredGroups, (newFilteredGroups) => {
-        openPanels.value = []
-        openPanels.value.push(newFilteredGroups.find(group => 
-        group.lights.some(light => light.id.toLowerCase() === searchQuery.value.toLowerCase()))?.name || '')
-    })
-
-    const startAddingGroup = () => {
-        groupFormVariables.id = Math.random().toString()
-        groupFormVariables.name = ''
-        groupFormVariables.color = ''
-        dialogSelectedLights.value = []
-        editing.value = false
-    }
-
-    const startEditingGroup = (group: Group) => {
-        editingGroupId.value = group.id
-        editing.value = true
-        groupDialogIsOpen.value = true
-        groupFormVariables.id = group.id
-        groupFormVariables.name = group.name
-        groupFormVariables.color = group.color
-        const groupLightsDeepCopy:Light[] = JSON.parse(JSON.stringify(group.lights))
-        groupLightsDeepCopy.forEach(light => {
-            dialogSelectedLightsWithGroup.value.push({light: light, groupName: group.name})
-        })
-    }
-
-    const removeLightsFromGroups = (lightsAndGroups: Array<{light: Light, groupName: string}>) => {
-        console.log('x')
-        lightsAndGroups.forEach(lightsAndGroup => {
-            if(lightsAndGroup.groupName === 'Unassigned') {
-                unassignedLights.value.splice(unassignedLights.value.findIndex(light => light.id === lightsAndGroup.light.id), 1)
-                return
-            }
-            const groupToBeDeletedFrom =  groups.value.find(group => group.name === lightsAndGroup.groupName) || {id: '', name: '', color: '', lights: []}
-            groupToBeDeletedFrom.lights.splice(groupToBeDeletedFrom.lights.findIndex(light => light.id === lightsAndGroup.light.id), 1)
-            console.log('aa',groupToBeDeletedFrom.lights)
-            console.log(groupToBeDeletedFrom.lights.findIndex(light => light.id === lightsAndGroup.light.id))
-        })
-    }
-
-    const saveCreatedGroup = () => {
-        // REDO WITH OWN ALERT COMPONENT
-        if(groupFormVariables.name === ''){
-            alert('Group name cannot be empty')
-            return
-        }
-        if(dialogSelectedLightsWithGroup.value.length === 0){
-            alert('Group must contain at least one light')
-            return
-        }
-        if(groups.value.some(group => group.name === groupFormVariables.name)){
-            alert('Group with this name already exists')
-            return
-        }   
-        if(groupFormVariables.color === ''){
-            groupFormVariables.color = 'primary'
-        }
-        groups.value.push({id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights:dialogSelectedLightsWithGroup.value.map(lightAndGroup => lightAndGroup.light)})
-        groupDialogIsOpen.value = false
-        editing.value = false
-        removeLightsFromGroups(dialogSelectedLightsWithGroup.value)
-    }
-
-    const saveEditedGroup = () => {
-        const groupIndex = groups.value.findIndex(group => group.id === editingGroupId.value)
-        groups.value[groupIndex] = {id: groupFormVariables.id, name: groupFormVariables.name, color: groupFormVariables.color, lights:dialogSelectedLightsWithGroup.value.map(lightAndGroup => lightAndGroup.light)}
-        groupDialogIsOpen.value = false
-        editing.value = false
-        removeLightsFromGroups(dialogSelectedLightsWithGroup.value)
-
-    }
-
-    const draggedElement = ref<Light>({id: ''})
-    const originalGroup = ref<Group>({id: '', name: '', color: '', lights: []})
-
-    const startDragLightsWithGroup = (e: any) => {
-        originalGroup.value = groups.value.find(group => group.lights.some(light => light.id === e.target.textContent)) || {id: '', name: '', color: '', lights: []}
-        groups.value.forEach(group => group.lights.find(light => {
-            if(light.id === e.target.textContent){
-            draggedElement.value = light
-            return}
-        }))
-        console.log(originalGroup.value)
-        console.log(draggedElement.value)
-    }
-
-    const startDragunassignedLights = (e: any) => {
-        draggedElement.value = unassignedLights.value.find(light => light.id === e.target.textContent) || {id: ''}
-        originalGroup.value = {id: '', name: '', color: '', lights: []}
-        console.log(originalGroup.value)
-        console.log(draggedElement.value)
-    }
-
-    const allowDrop = (e: any) => {
-        e.preventDefault()
-    }
-
-    const dropItemIntoGroup = (e: any) =>  {
-        if(originalGroup.value.name !== e.target.parentElement.textContent){
-            const wantedGroup = groups.value.find(group => group.name === e.target.parentElement.textContent)
-            // unshift funguje krasne podle zadani (davat lights dropnuty na skupinu na zacatek pole), ale mozna se na to vysrat a pushovat je na konec?
-            wantedGroup?.lights.unshift(draggedElement.value)
-            console.log(originalGroup.value)
-            console.log(draggedElement.value)
-            // If originalGroup.value.name === '', then the dragged light is from unassignedLights array
-            if(originalGroup.value.name === ''){
-                unassignedLights.value.splice(unassignedLights.value.findIndex(light => light.id === draggedElement.value.id), 1)
-            }
-            else{
-                console.log(originalGroup.value.lights.findIndex(light => light.id === draggedElement.value.id))
-                originalGroup.value.lights.splice(originalGroup.value.lights.findIndex(light => light.id === draggedElement.value.id), 1)
-            }
-        }
-    }
-    const dialogSelectedLights = ref<Light[]>([])
-    const dialogSelectedLightsWithGroup = ref<Array<{light: Light, groupName: string}>>([])
-
-    const updateDialogSelectedLights =  (selectedLights: any) => {
-        dialogSelectedLightsWithGroup.value = selectedLights
-    }
-
-    watchEffect(() => {
-        if(!groupDialogIsOpen.value){
-            console.log(dialogSelectedLights.value)
-            console.log(groupFormVariables.lights)
-            dialogSelectedLightsWithGroup.value = []
-        }
-    })
-
-    const hideAssigned = ref(true)
-
-    // TODO
-    // Drag and drop transitions
-</script>
-
 <template>
-    <v-row>
-        <v-col cols="12" md="8">
+    <v-form>
+      <v-text-field :error-messages="nameErrorMessage" v-model="name" label="Name"></v-text-field>
+      <v-text-field :error-messages="emailErrorMessage" v-model="email" label="Email" type="email"></v-text-field>
+      <v-btn @click="submit" :disabled="!isFormValid">Submit</v-btn>
+      <v-radio-group v-for="(item, index) in radioGroupsValues"
+        v-model="item.value">
+        <v-radio v-for="designProposalId in radioGroupOptions" :label="designProposalId.toString()" :value="designProposalId.toString()"></v-radio>
+    </v-radio-group>  
+    </v-form>
 
-        </v-col>
-        <v-col cols="12" md="4">
-    <p> {{ dialogSelectedLightsWithGroup }} </p>
+    <!-- <v-btn @click="deleteUsers()"> -->
+        <!-- </v-btn> -->
 
-        <v-card style="background-color:#e4e4e4" class="">
-            <div class="d-flex justify-self-center mx-4 mt-3">
-                <h2 class="ml-2">Groups</h2>
-                <v-btn
-                    color="primary"
-                    class="ml-auto mr-2"
-                    @click="startAddingGroup()">
-                        Add group
-                        <v-dialog
-                            v-model="groupDialogIsOpen"
-                            activator="parent"
-                            max-width="1500px"
-                        >
-                            <v-card>
-                                <v-card-title>
-                                    <span class="text-h5">{{ editing ? 'Edit group' : 'Create group' }}</span>
-                                </v-card-title>
-                                <v-card-text>
-                                        <v-row class="mx-5">
-                                            <v-col cols="12" md="4">
-                                                <v-text-field
-                                                    v-model="groupFormVariables.name"
-                                                    label="Group name"
-                                                    required
-                                                ></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" md="4">
-                                                <v-select
-                                                    v-model="groupFormVariables.color"
-                                                    label="Group color"
-                                                    :items="groupColors"
-                                                ></v-select>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row class="mx-5">
-                                            <v-col cols="12" md="9" class="d-flex align-center justify-center">
-                                                <p>mapa</p>
-                                            </v-col>
-                                            <v-col cols="12" md="3">
-                                                <v-sheet
-                                                class="d-flex flex-column flex-wrap justify-center px-11 pb-11 pt-7 rounded-lg" 
-                                                color="grey-lighten-3">
-                                                <h2 class="mx-auto">Streetlights</h2>
-                                                <p> {{ dialogSelectedLightsWithGroup }} </p>
-                                                <DisplayGroup :group="{id: '0', name: 'Unassigned', color: 'priamry', lights: unassignedLights}" :selected-lights="dialogSelectedLightsWithGroup" @updateSelectedLights="updateDialogSelectedLights"/>
-                                                <div class="animateHideAssigned" v-if=hideAssigned>
-                                                    <DisplayGroup v-for="group in groups" :key="group.id" 
-                                                    :group="group"
-                                                    :selected-lights="dialogSelectedLightsWithGroup"
-                                                    @updateSelectedLights="updateDialogSelectedLights"/>
-                                                </div>
-                                                <v-row class="d-flex align-center ma-0">
-                                                    <v-col cols="1" class="pl-2 progressCursor" >
-                                                        <v-divider class="border-opacity-100 " style="width:15px" color="primary"></v-divider>
-                                                    </v-col>
-                                                    <v-col cols="8" class="pa-0 pl-3 progressCursor">
-                                                        <p class="text-primary"  @click="hideAssigned=!hideAssigned">{{ hideAssigned ? 'Hide assigned' : 'Show assigned' }}</p>
-                                                    </v-col>
-                                                </v-row>
-                                            </v-sheet>
-                                            </v-col>
-                                        </v-row>
-                                </v-card-text>
-                                <v-card-actions>
-                                    <v-btn color="primary" block @click="editing ? saveEditedGroup() : saveCreatedGroup()">
-                                        {{ editing ? 'Save' : 'Create' }}
-                                    </v-btn>
-                                </v-card-actions>
-                            </v-card>
-                        </v-dialog>
-                    </v-btn>
-                </div>
-            <v-card-text>
-                <v-text-field
-                    variant="outlined"
-                    v-model="searchQuery"
-                    append-inner-icon="mdi-magnify"
-                    hide-details="auto"
-                    label="Search"
-                    
-                ></v-text-field>
-                <v-expansion-panels
-                v-model="openPanels">
-                    <v-expansion-panel v-for="group in filteredGroups" :key="group.id" :value="group.name"
-                        class="my-2"
-                        @dragover="allowDrop"
-                        @drop="dropItemIntoGroup">
-                        <template #title>
-                            <div class= "d-flex align-center flex-grow-1">
-                                <!-- <img src="@/assets/marker.svg" alt="marker" height="50"> -->
-                                <p class="ml-6">{{ group.name }}</p>
-                                <v-icon icon="mdi-pen" class="ml-auto mr-2 onHoverIcon" @click.stop="startEditingGroup(group)"/>
-                            </div>
-                        </template>
-                        <template #text>
-                    <div class="pt-3 px-6 pb-4" @drop.stop>
-                        <draggable :list="group.lights" 
-                        class="list-group" 
-                        item-key="id"
-                        @dragstart="startDragLightsWithGroup" 
-                        group="lights">
-                            <template #item="{element: light}">
-                            <v-card :key="light.id"
-                            :class="{ 'selected-card': light.id.toLowerCase() === searchQuery.toLowerCase(), 'list-group-item': true}"
-                            variant="outlined" 
-                            style="background-color: white; margin-bottom: 12px;"
-                            @drop.stop>
-                                <v-card-title class="d-flex">
-                                    <!-- <img src="@/assets/marker.svg" 
-                                    alt="marker"
-                                    height="30"> -->
-                                    <p class="ml-4">{{ light.id }}</p>
-                                    <v-icon icon="mdi-pen" class="ml-auto mr-2"/>
-                                </v-card-title>
-                            </v-card>
-                            </template>
-                        </draggable>
-                            </div>
-                        </template>
-                    </v-expansion-panel>
-                </v-expansion-panels>
-                <div class="justify-space-evenly" style="min-height: 80px;">
-                    <draggable :list="unassignedLights" class="list-group" @dragstart="startDragunassignedLights" group="lights" item-key="id">
-                        <template #item="{element: light}">
-                    <v-card :key="light.id"
-                        class="d-flex align-center justify-center ma-1 y" width="30%">
-                        <p>{{ light.id }}</p>
-                    </v-card>
-                    </template>
-                    </draggable>
-                </div>
-            </v-card-text>
-        </v-card>
-    </v-col>
-    </v-row>
+  
+    <div>
+      <v-btn @click="fetchUsers">Load Users</v-btn>
+      <ul>
+        <li v-for="user in users" :key="user.id">
+            {{ user.name }} - {{ user.email }} - {{ user.firstOption }} - {{ user.secondOption }} - {{ user.thirdOption }}
+            <v-btn @click="deleteUser(user.id)">Delete user</v-btn>
+        </li>   
+    </ul>
+    <p> {{ votingResultsMap }}</p>
+</div>
 </template>
 
-<style> 
+<script setup lang="ts">
+  import { ref, onMounted, computed, watchEffect } from 'vue';
+  
+  type User = {
+    id: number;
+    name: string;
+    email: string;
+    firstOption: string,
+    secondOption: string,
+    thirdOption: string,
+  };
 
-.v-expansion-panel-title{
-    padding: 10px 20px 10px 15px;
-    font-size: 1.3rem;
-}
+  const radioGroupsValues = ref([
+    {value: 0},
+    {value: 0},
+    {value: 0}
+  ])
+  const radioGroupOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-.v-expansion-panel {
-    border-radius: 7px;
+  const name = ref('');
+  const email = ref('');
+  const users = ref<User[]>([]);
 
-}
+  const nameErrorMessage = computed(() => {
+    if (name.value.length <= 2) {
+      return 'Jmeno musi byt delsi nez 2 znaky';
+    }
+    return '';
+  })
+  const emailErrorMessage = computed(() => {
+    if (!email.value.includes('@')) {
+      return 'Email musi byt valid';
+    }
+    return '';
+  
+  })
 
-.v-expansion-panel-title__overlay {
-    background-color: white;
-    border-radius: 10px;
-}
+  const isFormValid = computed(() => {
+    return email.value.includes('@') && name.value.length > 2;
+  })
 
-.v-expansion-panel-text__wrapper {
-    background-color: #e4e4e4;
-    padding: 0 !important;
-}
+  let votingResultsMap = new Map<string, number>();
+  watchEffect(() => {
+    if(!users) return
+    votingResultsMap = new Map<string, number>();
+    users.value.forEach(user => {
+        votingResultsMap.set(user.firstOption, (votingResultsMap.get(user.firstOption) || 0) + 3);
+        votingResultsMap.set(user.secondOption, (votingResultsMap.get(user.secondOption) || 0) + 2);
+        votingResultsMap.set(user.thirdOption, (votingResultsMap.get(user.thirdOption) || 0) + 1);
+    })
+    const sortedMap: Map<string, number> = new Map([...votingResultsMap.entries()].sort((a, b) => b[1] - a[1]));
+    votingResultsMap = sortedMap;
+  })
 
-.v-card {
-    z-index: initial;
-}
-
-.v-expansion-panels {
-    z-index: initial;
-}
-
-.selected-card {
-    border: 1px solid red;
-    /* transform: scale(1.02);
-    transition: transform 0.3s ease; */
-}
-
-/* .v-card:not(.selected-card){
-    transition: transform 0.3s ease; 
-}  */
-
-.elevation-2 {      /* remove box-shadow at the add group button inside the modal*/
-    box-shadow: none !important;
-}
-
-.onHoverIcon {
-    z-index: 1;
-    justify-self:flex-start;
-}
-
-.onHoverIcon:hover{
-    transform: scale(1.1);
-    transition: transform 0.5s ease;
-    color: #1e33f2;
-}
-
-.onHoverIcon:not(:hover){
-    transition: transform 0.5s ease;
-    color: black;
-}
-
-.progressCursor:hover {
-    cursor: pointer;
-}
-
-.animateHideAssigned {
-    animation: all 0.5s ease-in-out;
-}
-
-@keyframes all {
-  0% {
-    opacity: 0;
-    filter: blur(5px);
-    transform: translateX(-20%);
+  const submit = () => {
+    console.log('submited', radioGroupsValues.value);
+    addUser();
   }
-  100% {
-    opacity: 1;
-    filter: blur(0px);
-    transform: translateX(0);
+  
+  const addUser = async () => {
+    const userData = {
+      name: name.value,
+      email: email.value,
+      firstOption: radioGroupsValues.value[0].value,
+      secondOption: radioGroupsValues.value[1].value,
+      thirdOption: radioGroupsValues.value[2].value,
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/add-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok', await response.json());
+      }
+  
+      const result = await response.json();
+      console.log(result);
+      fetchUsers(); // Fetch all users again after adding
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  };
+  
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/get-users');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const result = await response.json();
+      users.value = result.users;
+    } catch (error) {
+      console.error('There was a problem fetching users:', error);
+    }
+  };
+
+  const deleteUser = async (userId: number) => {
+  try {
+    const response = await fetch(`http://localhost:5000/delete-user/${userId}`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const result = await response.json();
+    console.log(result);
+    fetchUsers(); // Fetch all users again after deletion
+  } catch (error) {
+    console.error('There was a problem with the delete operation:', error);
   }
-}
-</style>
+};
+  
+  // Optionally, fetch users when the component mounts
+  onMounted(fetchUsers);
+  </script>
