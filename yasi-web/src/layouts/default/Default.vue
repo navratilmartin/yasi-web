@@ -1,12 +1,9 @@
 <template>
   <v-app>
-    <v-btn v-if="isAuthenticated" color="error" class="ma-2 logout" @click="handleSignOut">Odhlásit</v-btn>
-    <v-alert v-if="authError" type="error" class="mt-2">{{ authError }}</v-alert>
-
+    <!-- <v-btn v-if="isAuthenticated" color="error" class="ma-2 logout" @click="handleSignOut">Odhlásit</v-btn>
+    <v-alert v-if="authError" type="error" class="mt-2">{{ authError }}</v-alert> -->
     <router-view />
-    <v-footer color="primary" app>
-      <span class="white--text">&copy; {{ date }} Birthday Celebration 🎁</span>
-    </v-footer>
+    
   </v-app>
 </template>
 
@@ -31,12 +28,9 @@ const handleSignOut = async () => {
 const date = ref<string>(
     `${new Date().getFullYear()} -- ${new Date().getHours()}:${new Date().getMinutes()} 🥳`
 );
-  import DefaultView from './View.vue'
 </script>
 <style>
 .logout {
-  position: absolute;
-  top: 10 ;
-  right: 0;
+  position: fixed;
 }
 </style>

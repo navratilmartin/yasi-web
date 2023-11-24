@@ -1,11 +1,5 @@
 <template>
   <v-app>
-    <v-app-bar app color="pink" dark>
-      <v-toolbar-title>Happy Birthday!</v-toolbar-title>
-      
-    </v-app-bar>
-
-    
     <section class="">
       <div id="fill" style="height: 100vh;"></div>
       <div v-for="photo in photoList" :key=photo.value class="slide"
@@ -14,9 +8,10 @@
         :src="photo.value" 
         alt="profile" >
       </div>
-      <a href="your-url-here" class="circular-image" >
-      </a>
-      <div class="menu ">
+      <AppBar/>
+      <!-- <a href="your-url-here" class="circular-image" >
+      </a> -->
+      <!-- <div class="menu ">
         <div class="menu-items">
           <div class="menu-item active" @click="defClick($event)">
             <svg width="24" height="24" viewBox="0 0 24 24" @click.stop="defClickChild($event)">
@@ -40,7 +35,7 @@
           </div>
           <div class="indicator"></div>
         </div>
-      </div>
+      </div> -->
     </section>
 
     <v-main>
@@ -116,8 +111,7 @@
         </v-snackbar>
       </v-container>
     </v-main>
-
-    <v-footer color="primary" app>
+    <v-footer class="mt-10" color="primary" app>
       <span class="white--text">&copy; {{ date }} Birthday Celebration 🎁</span>
     </v-footer>
   </v-app>
@@ -127,6 +121,7 @@
 import { ref, onUnmounted, reactive} from 'vue';
 import emailjs from 'emailjs-com';
 import { watchEffect } from 'vue';
+import AppBar from '@/components/AppBar.vue';
 
 
 const photoList = [
