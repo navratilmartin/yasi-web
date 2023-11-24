@@ -1,17 +1,6 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthState } from '@/composables/useAuthState'; // Adjust the path as necessary
-import { useAuthStore } from '@/store/AuthStore'; // Adjust the path as necessary
-import { createPinia, setActivePinia } from 'pinia';
-
 import Default from '@/layouts/default/Default.vue'
-import { watchEffect } from 'vue';
-// const { currentUser } = useAuthState();
-// const { user } = useAuthStore();
-watchEffect(() => {
-  // console.log('routerCurUser', authStore.user)
-})
-
 
 const routes = [
   {
@@ -19,26 +8,26 @@ const routes = [
     component: Default,
     children: [
       {
-        path: '',
-        name: 'Home',
+        path: '/groups',
+        name: 'Groups',
         component: () => import( '@/views/Home.vue'),
       },
       {
-        path: '/about',
-        name: 'About',
+        path: '',
+        name: 'Home',
         component: () => import( '@/views/About.vue'),
       },
       {
         path: '/login',
         name: 'Login',
-        // Zabezpeceni here
         component: () => import( '@/views/Login.vue'),
       },
       {
         path: '/signup',
         name: 'Signup',
-        component: () => import('@/views/Home.vue')
-      }
+        component: () => import('@/views/Signup.vue')
+      },
+
     ],
   },
   {
@@ -63,30 +52,28 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  setActivePinia(createPinia());
-
-  // Now, use your store
-  const authStore = useAuthStore();
-  const { currentUser } = useAuthState();
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-  console.log('cookies', isAuthenticated)
-  
-  // Define public pages that don't require authentication
-  const publicPages = ['/login', '/signup']; // Adjust according to your routes
+  const userEmail = localStorage.getItem('userEmail'); 
+
+  const specificEmail = 'martinacek.n@gmail.com'; 
+  const publicPages = ['/login']; 
   const authRequired = !publicPages.includes(to.path);
 
   if (isAuthenticated) {
-    if ((to.path === '/login' || to.path === '/signup') && from.name !== null) {
-      // Redirect authenticated users away from login and signup pages
-      next({ name: 'Home' }); // Redirect to a safe authenticated user page
+    if ((to.path === '/login') && from.name !== null) {
+      next({ name: 'Home' });
+      return;
+    }
+    // Check for specific email on the signIn page
+    if (to.path === '/signup' && userEmail !== specificEmail) {
+      next({ name: 'Home' }); // Redirect to a different page if email doesn't match
       return;
     }
   } else if (authRequired) {
-    // Redirect unauthenticated users to the login page
     next('/login');
     return;
   }
-  
+
   next();
 });
 

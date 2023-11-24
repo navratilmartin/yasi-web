@@ -1,9 +1,9 @@
 <template>
   <v-app>
-    <!-- <v-app-bar app color="pink" dark>
+    <v-app-bar app color="pink" dark>
       <v-toolbar-title>Happy Birthday!</v-toolbar-title>
       
-    </v-app-bar> -->
+    </v-app-bar>
 
     
     <section class="">
