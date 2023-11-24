@@ -1,4 +1,5 @@
 <template>
+    <AppBar/>
     <v-container>
       <v-row justify="center">
         <v-col cols="12" sm="8" md="6" lg="4">
@@ -33,9 +34,10 @@
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, onMounted} from 'vue';
   import { signUp } from '../services/firebase/firebaseAuthService';
   import { useRouter } from 'vue-router';
+  import AppBar from '@/components/AppBar.vue'
   
   const router = useRouter(); // Declare the router instance here
 
@@ -59,3 +61,12 @@
 };
 
   </script>
+  <style lang="scss">
+  $items: 4;
+  $width: 1 / $items;
+  
+  $colors: #ed254e, #10c15c, #91c4f2, #9d79bc;
+  // $active-color: nth($colors, 1);
+
+
+  </style>

@@ -1,63 +1,39 @@
 <template>
-    <section>
+        <!-- <button v-if="isAuthenticated" color="error" class="logoutButton" @click="handleSignOut">Odhlásit</button> -->
         <a href="your-url-here" class="circular-image" >
         </a>
-        <div class="menu ">
+        <v-alert v-if="authError" type="error" class="mt-2">{{ authError }}</v-alert>
+        <div class="menu">
             <div class="menu-items">
-            <div class="menu-item active" @click="defClick($event)">
-                <svg width="24" height="24" viewBox="0 0 24 24" @click.stop="defClickChild($event)">
-                <path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4M12,11L20,6H4L12,11M4,18H20V8.37L12,13.36L4,8.37V18Z"></path>
+            <router-link to="/" id="home" class="menu-item">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
                 </svg>
-            </div>
-            <div class="menu-item" @click="defClick($event)">
-                <svg width="24" height="24" viewBox="0 0 24 24" @click.stop="defClickChild($event)">
-                <path d="M11.5,22C11.64,22 11.77,22 11.9,21.96C12.55,21.82 13.09,21.38 13.34,20.78C13.44,20.54 13.5,20.27 13.5,20H9.5A2,2 0 0,0 11.5,22M18,10.5C18,7.43 15.86,4.86 13,4.18V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V4.18C7.13,4.86 5,7.43 5,10.5V16L3,18V19H20V18L18,16M19.97,10H21.97C21.82,6.79 20.24,3.97 17.85,2.15L16.42,3.58C18.46,5 19.82,7.35 19.97,10M6.58,3.58L5.15,2.15C2.76,3.97 1.18,6.79 1,10H3C3.18,7.35 4.54,5 6.58,3.58Z"></path>
+            </router-link >
+            <router-link to="/route" id="route" class="menu-item">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M15,14C12.3,14 7,15.3 7,18V20H23V18C23,15.3 17.7,14 15,14M15,12A4,4 0 0,0 19,8A4,4 0 0,0 15,4A4,4 0 0,0 11,8A4,4 0 0,0 15,12M5,15L4.4,14.5C2.4,12.6 1,11.4 1,9.9C1,8.7 2,7.7 3.2,7.7C3.9,7.7 4.6,8 5,8.5C5.4,8 6.1,7.7 6.8,7.7C8,7.7 9,8.6 9,9.9C9,11.4 7.6,12.6 5.6,14.5L5,15Z" />
                 </svg>
-            </div>
-            <div class="menu-item" @click="defClick($event)">
-                <svg width="24" height="24" viewBox="0 0 24 24" @click.stop="defClickChild($event)">
-                <path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"></path>
+            </router-link>
+            <router-link to="/photos" id="photos" class="menu-item">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z" />
                 </svg>
-            </div>
-            <div class="menu-item" @click="defClick($event)">
-                <svg width="24" height="24" viewBox="0 0 24 24" @click.stop="defClickChild($event)">
-                <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"></path>
+            </router-link>
+            <div class="menu-item" @click="handleSignOut">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" color="red">
+                    <path d="M17 8L15.6 9.4L17.2 11H9V13H17.2L15.6 14.6L17 16L21 12L17 8M5 5H12V3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H12V19H5V5Z" />
                 </svg>
             </div>
             <div class="indicator"></div>
             </div>
         </div>
-    </section>
   </template>
   
-  <script setup lang="ts">
-  import { ref } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import { signOutUser } from '@/services/firebase/firebaseAuthService';
 import { useRouter } from 'vue-router';
-
-function defClick(event: any) {
-  const menuItems = document.querySelectorAll('.menu-item');
-    menuItems.forEach(item => item.classList.remove('active'));
-    event.target.classList.add('active');
-}
-
-function defClickChild(event: any){
-  const menuItems = document.querySelectorAll('.menu-item');
-  menuItems.forEach(item => item.classList.remove('active'));
-  if(event.target.parentElement.parentElement.classList.contains('menu-items')){
-    event.target.parentElement.classList.add('active');
-  } else {
-    event.target.parentElement.parentElement.classList.add('active');
-  }
-}
-
-
-
-
-
-
-
-
 
 const router = useRouter(); // Declare the router instance here
 const authError = ref('');
@@ -72,17 +48,30 @@ const handleSignOut = async () => {
   }
 };
 
-const date = ref<string>(
-    `${new Date().getFullYear()} -- ${new Date().getHours()}:${new Date().getMinutes()} 🥳`
-);
- 
+// function defClick(event: any) {
+//   const menuItems = document.querySelectorAll('.menu-item');
+//     menuItems.forEach(item => item.classList.remove('active'));
+//     console.log(document.getElementById(event.target.id)?.classList)
+//     document.getElementById(event.target.id)?.classList.add('active');
+//     console.log('after',document.getElementById(event.target.id)?.classList)
+//     // event.target.classList.add('active');
+// }
 
-  </script>
+// function defClickChild(event: any){
+//   const menuItems = document.querySelectorAll('.menu-item');
+//   menuItems.forEach(item => item.classList.remove('active'));
+//   if(event.target.parentElement.parentElement.classList.contains('menu-items')){
+//     event.target.parentElement.classList.add('active');
+//   } else {
+//     event.target.parentElement.parentElement.classList.add('active');
+//   }
+// }
+</script>
 <style lang="scss">
 $items: 4;
 $width: 1 / $items;
 
-$colors: #ed254e, #10c15c, #91c4f2, #9d79bc;
+$colors: #E281D3, #10c15c, #91c4f2, #9d79bc;
 // $active-color: nth($colors, 1);
 
 .menu {
@@ -90,7 +79,7 @@ $colors: #ed254e, #10c15c, #91c4f2, #9d79bc;
   z-index: 1000;
   width: 600px;
   top: 5px;
-  right: 5px;
+  right: 20px;
   margin: 1rem;
   box-sizing: border-box;
   max-width: 100%;
@@ -148,6 +137,51 @@ $colors: #ed254e, #10c15c, #91c4f2, #9d79bc;
     }
   }
 }
+
+.circular-image {
+  border-radius: 50%;
+  position: fixed;
+  overflow: hidden;
+  background: url('@/assets/photos/B2DCB4B0-7CDF-40EF-B6F6-377075B3C04C.JPEG') no-repeat center center; 
+  background-size: cover;
+  height: 100px;
+  width: 100px;
+  top: 15px;
+  left: 15px;
+}
+// // NavBar css hotovo
+
+// .logoutButton {
+//   position: absolute;
+//   top: 0px;
+//   left: calc(100% - 190px);
+//   z-index: 1010;
+//   margin-top: 35px;
+//   width: 160px;
+  
+//   background-color: #F44336; /* Red color for the 'error' color prop */
+//   color: white;
+//   padding: 10px 20px;
+//   border: none;
+//   border-radius: 4px;
+//   font-size: 1em;
+//   cursor: pointer;
+//   transition: background-color 0.3s, box-shadow 0.3s;
+//   outline: none;
+
+//   &:hover {
+//     background-color: darken(#F44336, 10%); /* Slightly darker on hover */
+//     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
+//   }
+
+//   &:focus {
+//     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2); /* Shadow effect on focus */
+//   }
+
+//   &:active {
+//     background-color: lighten(#F44336, 5%); /* Slightly lighter on active (pressed) */
+//   }
+// }
 
 .absolute {
   position: fixed;
