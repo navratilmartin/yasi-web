@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } f
 export const signIn = async (email: string, password: string) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    localStorage.setItem('isAuthenticated', 'true');
     return userCredential.user;
   } catch (error) {
     console.error('Error signing in: ', error);
@@ -17,6 +18,7 @@ export const signIn = async (email: string, password: string) => {
 export const signUp = async (email: string, password: string) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    localStorage.setItem('isAuthenticated', 'true');
     return userCredential.user;
   } catch (error) {
     console.error('Error signing up: ', error);
@@ -28,7 +30,8 @@ export const signUp = async (email: string, password: string) => {
 export const signOutUser = async () => {
   try {
     await signOut(auth);
-  } catch (error) {
+    localStorage.removeItem('isAuthenticated');
+    } catch (error) {
     console.error('Error signing out: ', error);
     throw error;
   }
