@@ -17,11 +17,11 @@ const items = ref<MenuItem[]>([
     { year: "2011", title: 'Začátek', text: 'V roce 2011 jsme se poprvé bavili.', thumbnail: 'src/assets/photos/IMG_1188.JPG', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-video', color: 'primary' },
     { year: "2011", title: 'Začátek', text: 'V roce 2011 jsme se poprvé bavili.', thumbnail: 'src/assets/photos/IMG_1188.JPG', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-video', color: 'primary' },
     { year: "2011", title: 'Začátek', text: 'V roce 2011 jsme se poprvé bavili.', thumbnail: 'src/assets/photos/IMG_1188.JPG', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-video', color: 'primary' },
-    { year: "2019", title: 'Začátek', text: 'V roce 2011 jsme se poprvé bavili.', thumbnail: 'src/assets/photos/IMG_1188.JPG', videoUrl: 'https://www.youtube.com/embed/BnHWjzr1QiI', icon: 'mdi-video', color: 'primary' },
+    { year: "2019", title: 'Začátek', text: 'V roce 2011 jsme se poprvé bavili.', thumbnail: 'src/assets/photos/IMG_1188.JPG', videoUrl: 'https://www.youtube.com/embed/WBbEEmF6hhM', icon: 'mdi-video', color: 'primary' },
     { year: "2020", title: '💖28. 12. 2020💖', text: '💖28. 12. 2020💖', thumbnail: 'src/assets/love.jpeg', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-heart', color: 'primary' },
     { year: "2021", title: 'Egypt', text: 'Naše první traveling experience spolu', thumbnail: 'src/assets/egypt.jpeg', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-mosque', color: 'primary' },
     { year: "2022", title: 'Tiktok - Začátek tvojí Tiktok kariéry', text: 'Začátek tvojí Tiktok kariéry', thumbnail: 'src/assets/tiktok1.jpeg', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-cellphone', color: 'primary' },
-    { year: "2023", title: 'Thajsko - náš zatím nejdelší a nejlepší výlet✈️', text: 'Náš zatím nejdelší a nejlepší výlet ✈️ - Thajsko', thumbnail: 'src/assets/photos/IMG_1188.JPG', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-plane-car', color: 'primary' },
+    { year: "2023", title: 'Thajsko - náš zatím nejdelší a nejlepší výlet✈️', text: 'Náš zatím nejdelší a nejlepší výlet ✈️ - Thajsko', thumbnail: 'src/assets/slon.jpeg', videoUrl: 'https://www.youtube.com/embed/Vjex-pZXa4U', icon: 'mdi-plane-car', color: 'primary' },
     { year: "?", title: 'Začátek', text: 'V roce 2011 jsme se poprvé bavili.', thumbnail: 'src/assets/photos/IMG_1188.JPG', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-road', color: 'primary' },
     ]);
 

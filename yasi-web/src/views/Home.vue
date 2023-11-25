@@ -106,6 +106,9 @@ const photoList = [
   {value: '/src/assets/photos/egypt2.jpeg'},
   {value: '/src/assets/photos/old_party.jpeg'},
   {value: '/src/assets/photos/zrce.jpg'},
+  {value: '/src/assets/photos/thajsko1.jpg'},
+  {value: '/src/assets/photos/thajsko2.jpeg'},
+  {value: '/src/assets/photos/slon.jpeg'},
 ];
 
 let index = Math.floor(Math.random() * photoList.length);
