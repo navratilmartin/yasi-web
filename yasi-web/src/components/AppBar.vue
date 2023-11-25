@@ -1,6 +1,6 @@
 <template>
         <!-- <button v-if="isAuthenticated" color="error" class="logoutButton" @click="handleSignOut">Odhlásit</button> -->
-        <a href="your-url-here" class="circular-image" >
+        <a href="/" class="circular-image" >
         </a>
         <v-alert v-if="authError" type="error" class="mt-2">{{ authError }}</v-alert>
         <div class="menu">
@@ -78,7 +78,7 @@ $colors: #E281D3, #10c15c, #91c4f2, #9d79bc;
   position: absolute;
   z-index: 1000;
   width: 600px;
-  top: 5px;
+  top: 0px;
   right: 20px;
   margin: 1rem;
   box-sizing: border-box;
@@ -146,7 +146,7 @@ $colors: #E281D3, #10c15c, #91c4f2, #9d79bc;
   background-size: cover;
   height: 100px;
   width: 100px;
-  top: 15px;
+  top: 10px;
   left: 15px;
 }
 // // NavBar css hotovo

@@ -1,218 +1,288 @@
 <template>
+  <v-app>
+    <section class="">
+      <div id="fill" style="height: 100vh;"></div>
+      <div v-for="photo in photoList" :key=photo.value class="slide"
+      :class="{activeSlide: photo.value === selectedPhoto}">
+        <img 
+        :src="photo.value" 
+        alt="profile" >
+      </div>
+      <AppBar/>
+    </section>
 
-<v-row>
-  <v-col cols="8">
-  </v-col>
-  <v-col cols="4">
-    <v-expansion-panels class="ma-5">
-        <v-expansion-panel
-            title="Groups"
-            text="">
-                <v-expansion-panel-text>
-                <v-text-field
-                    class=""
-                    v-model="searchQuery"
-                    clearable
-                    append-inner-icon="mdi-magnify"
-                    hide-details="auto"
-                    label="Search"
-                ></v-text-field>
-                <div v-for="group in groups" :key="group.id" >
-                <v-card class="my-3">
-                    <template v-slot:title >
-                        <div class="groupClassTitle">
-                            <!-- <img src="@/assets/marker.svg" alt="marker"> -->
-                            <p>{{ group.name }}</p>
-                            <v-icon class="ml-10"
-                            @click="showLights = !showLights"
-                            > mdi-chevron-down</v-icon>
-                        </div>
-                    </template>
+    <v-main>
+      <v-container>
+        <v-row justify="center">
+          <v-col cols="12" md="8">
+            <div>
+              <img id='img' src="">
+            </div>
+            
+            <v-card class="pa-5 mt-5">
+              <v-card-title class="text-h5">
+                Special Birthday Wishes!
+              </v-card-title>
+              <v-card-text>
+                <p>Happy Birthday to the most amazing person in my life! 🎉</p>
+                <p>May your day be filled with joy, laughter, and all the love you deserve.</p>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
 
-                    <!-- <v-card-text>
-                    This is content
-                    </v-card-text> -->
-                </v-card>
-                  <v-card v-if="showLights" v-for="light in group.lights"
-                  :title="light"
-                  class="lights">
-
-                  </v-card>
-                </div>
-            </v-expansion-panel-text>
-        </v-expansion-panel>
-    </v-expansion-panels>
-  </v-col>
-</v-row>
-
-  <div class="background-image">
-  <v-container class="d-flex justify-center">
-    <v-btn @click="isVisible = !isVisible">{{ isVisible === true ? 'hide' : 'show' }}</v-btn>
-  </v-container>
-  <section id="gym" v-if="isVisible" class="d-flex flex-column">
-    <h1>Gym</h1>
-    <v-sheet
-    class="mx-auto"
-    elevation="8"
-    max-width="80vw"
-  >
-    <v-slide-group
-      v-model="model"
-      class="pa-4"
-      selected-class="bg-success"
-      show-arrows
-    >
-      <v-slide-group-item
-        v-for="n in 15"
-        :key="n"
-        v-slot="{ isSelected, toggle, selectedClass }"
-      >
-        <v-card
-          color="grey-lighten-1"
-          :class="['ma-4', selectedClass]"
-          height="250"
-          width="200"
-          @click="[toggle(), print(model)]"
+        <!-- Buttons for sending emails -->
+        <v-row class="text-center mt-5">
+          <v-col>
+            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('comeOver')">Come Over</v-btn>
+          </v-col>
+          <v-col>
+            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('buyFood')">Buy yummi</v-btn>
+          </v-col>
+          <v-col>
+            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('call')">Call</v-btn>
+          </v-col>
+          <v-col>
+            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('<3')">💗</v-btn>
+          </v-col>
+        </v-row>
+        <v-dialog
+          v-model="isDialogOpen"
+          width="800px"
         >
-          <div class="d-flex fill-height align-center justify-center">
-            <v-scale-transition>
-              <v-icon
-                v-if="isSelected"
-                color="white"
-                size="48"
-                icon="mdi-close-circle-outline"
-              ></v-icon>
-            </v-scale-transition>
-          </div>
-        </v-card>
-      </v-slide-group-item>
-    </v-slide-group>
-  </v-sheet>
-  </section>
+          <v-card>
+            <v-toolbar
+              color="primary"
+              class="pl-3"
+              :title=dialogContent.title
+            >
+              <v-spacer></v-spacer>
+              <v-btn icon @click="closeDialog()">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-toolbar>
+            <v-card-text>
+              <v-textarea v-model="dialogContent.message" label="Text zprávy"></v-textarea>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn color="primary" block @click="sendEmail(dialogContent.messageType, dialogContent.message)">Odešli zprávu</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="loading" persistent width="300">
+          <v-card>
+            <v-card-text class="text-center">
+              <v-progress-circular indeterminate color="primary"></v-progress-circular>
+              <div>Posílám email...</div>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
 
-  <section id="jidlo" v-if="isVisible" class="d-flex flex-column">
-    <h1>Jidlo</h1>
-    <v-sheet
-    class="mx-auto"
-    elevation="8"
-    max-width="80vw"
-  >
-    <v-slide-group
-      v-model="model"
-      class="pa-4"
-      selected-class="bg-success"
-      show-arrows
-    >
-      <v-slide-group-item
-        v-for="n in 15"
-        :key="n"
-        v-slot="{ isSelected, toggle, selectedClass }"
-      >
-        <v-card
-          color="grey-lighten-1"
-          :class="['ma-4', selectedClass]"
-          height="250"
-          width="200"
-          @click="[toggle(), print(model)]"
-        >
-          <div class="d-flex fill-height align-center justify-center">
-            <v-scale-transition>
-              <v-icon
-                v-if="isSelected"
-                color="white"
-                size="48"
-                icon="mdi-close-circle-outline"
-              ></v-icon>
-            </v-scale-transition>
-          </div>
-        </v-card>
-      </v-slide-group-item>
-    </v-slide-group>
-  </v-sheet>
-  </section>
-</div>
+        <v-snackbar v-model="snackbar.show">
+          {{ snackbar.message }}
+          <v-btn class="ml-1" :color="snackbar.succesful ? 'green' : 'red'" @click="snackbar.show = false">Zavřít</v-btn>
+        </v-snackbar>
+      </v-container>
+    </v-main>
+    <Footer/>
+  </v-app>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
+import { ref, onUnmounted, reactive, onMounted} from 'vue';
+import emailjs from 'emailjs-com';
+import { watchEffect } from 'vue';
+import AppBar from '@/components/AppBar.vue';
+import Footer from '@/components/Footer.vue';
 
-import {ref} from 'vue'
+const photoList = [
+  {value: '/src/assets/photos/IMG_8309.jpg'},
+  {value: '/src/assets/photos/IMG_9318.jpg'},
+  {value: '/src/assets/photos/IMG_7297.jpg'},
+  {value: 'src/assets/photos/IMG_20220124111201.PNG'},
+  {value: '/src/assets/photos/IMG_7932.JPEG'},
+];
 
-const print = (x: any) => console.log(model.value)
-const model = ref<number[]>([])
-console.log(model.value)
-const isVisible = ref(true)
+let index = Math.floor(Math.random() * photoList.length);
+const selectedPhoto = ref(photoList[index].value);
+const selectNextPhoto = () => {
+  index = (index+1) % photoList.length;
+  selectedPhoto.value = photoList[index].value;
+}
+const intervalId = setInterval(selectNextPhoto, 5000);
 
-const searchQuery = ""
-const showLights = ref(false)
-const groups = [{id: 0, name: 'skupina 1', lights: ['x', 'y']}, {id: 1, name: 'skupina 2', lights: ['z', 'e']}]
+type MessageType = 'buyFood' | 'call' | 'comeOver' | '<3';
+interface DialogContent {
+    messageType: MessageType;
+    message: string;
+    title: string;
+}
+const isDialogOpen = ref(false);
+const dialogContent = reactive<DialogContent>({
+    messageType: '<3',
+    message: '',
+    title: '',
+});
+const closeDialog = () => {
+  isDialogOpen.value = false;
+  dialogContent.message = '';
+  dialogContent.messageType = '<3';
+}
+watchEffect(() => {
+  if(isDialogOpen.value === false){
+    dialogContent.message = '';
+    dialogContent.messageType = '<3';  }
+})
 
+const loading = ref(false);
+const snackbar = ref({
+  show: false,
+  message: '',
+  succesful: false,
+});
+
+const startSendingEmail = (messageType: MessageType) => {
+  dialogContent.messageType = messageType;
+  switch (messageType) {
+    case 'buyFood':
+      dialogContent.title = 'Koupit yummi';
+      break;
+    case 'call':
+      dialogContent.title = 'Call';
+      break;
+    case 'comeOver':
+      dialogContent.title = 'Come over';
+      break;
+    case '<3':
+      dialogContent.title = '<3';
+      break;
+    default:
+      dialogContent.title = '';
+      break;
+  }
+  isDialogOpen.value = true;
+}
+
+const sendEmail = (messageType: MessageType, message: string) => {
+  loading.value = true; 
+  isDialogOpen.value = false;
+  let messageTypeText = '';
+  switch (messageType) {
+    case 'buyFood':
+      messageTypeText = 'abys jí koupil něco mnam';
+      break;
+    case 'call':
+      messageTypeText = 'abys jí zavolal';
+      break;
+    case 'comeOver':
+      messageTypeText = 'abys přijel';
+      break;
+    case '<3':
+      messageTypeText = 'aby ses měl hezky';
+      break;
+    default:
+      messageTypeText = 'default';
+      break;
+  }
+  const templateParams = {
+    to_name: 'Martine',
+    from_name: 'Yasinky',
+    message_type_text: messageTypeText,
+    message: message,
+  };
+
+  emailjs.send('service_9b1mllp', 'template_frebc2d', templateParams, 'Z8UzH1aa-iMCUx0pi')
+    .then((response) => {
+      loading.value = false;
+      snackbar.value = { show: true, message: 'Email byl v pořádku odeslán! 🎉', succesful: true };
+      console.log('SUCCESS!', response.status, response.text);
+    }, (error) => {
+      loading.value = false;
+      snackbar.value = { show: true, message: 'Email se nepodařilo odeslat. 😵', succesful: false };
+      console.log('FAILED...', error);
+    });
+};
+
+onMounted(() => {
+  setTimeout(() => {
+      const menuItems = document.querySelectorAll('.menu-item');
+      menuItems.forEach(item => item.classList.remove('active'));
+      document.getElementById('home')?.classList.add('active');
+  }, 1)
+})
+
+onUnmounted(() => {
+  clearInterval(intervalId);
+});
 </script>
 
-<style scoped>
+<style lang="scss">
 
-h1 {
-  font-size: 50px;
-  font-family: 'Sans-serif';
-  color: black;
-  margin: 20px;
-}
+/* Landing Page Styles */
 
-section {
-  color: red;
-  display: grid;
-  place-items: center;
-  justify-content: top;
-  margin-bottom: 200px;
-
-  /* filter: blur(5px); */
-  /* transform: translateY(-100%); */
-  animation: all 1s;
-}
-
-@keyframes all {
+@keyframes slideToLeft {
   0% {
-    opacity: 0;
-    filter: blur(5px);
-    transform: translateY(-100%);
+    transform: translateX(0);
   }
   100% {
-    opacity: 1;
-    filter: blur(0px);
-    transform: translateY(0);
+    transform: translateX(-1%); /* Adjust this value as needed */
   }
 }
 
-.background-image {
-  background-image: url("../assets/bg.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.groupClassTitle {
-    display: flex;
-    align-items: center;
-}
-
-.groupClassTitle p {
-    margin-left: 15px;
-}
-
-.lights {
-  margin-left: 20px;
-  animation: all 0.5s;
-  color: red
+@keyframes slideBack {
+  0% {
+    transform: translateX(-1%); /* Adjust this value as needed */
+  }
+  100% {
+    transform: translateX(0);
+  }
 
 }
 
-.lights:nth-child(2){
-  animation-duration: 500ms;
-  color: blue;
+.slide {
+  position: absolute;
+  inset: 0; 
+  opacity: 0;
+  scale: 1.11;
+  transition: 800ms opacity ease-in-out;
+  transition-delay: 800ms;
+  animation-delay: 1000ms;
+  animation: slideBack 600ms ease-in-out forwards;
 }
 
-.lights:nth-child(3){
-  animation-duration: 1000ms;
-  color: blue;
+.activeSlide {
+  opacity: 1;
+  transition-delay: 0ms;
+  scale: 1.11;
+  animation-delay: 1600ms;
+  animation: slideToLeft 5000ms linear forwards;
 }
 
+.slide > img {
+  width: 100vw;
+  height: 100vh;
+  object-position: 50% 80%;
+  object-fit: cover;
+  display: block;
+}
+
+.headerPhoto {
+  width: 100vw;
+  height: 100vh;
+  object-position: 50% 80%;
+  object-fit: cover;
+  opacity: 0;
+  display: block;
+}
+
+
+.ma-2 {
+  margin: 8px;
+}
+
+.v-btn {
+  width: 200px; /* Set button width */
+  height: 50px; /* Set button height */
+  font-size: 16px; /* Set font size */
+}
 </style>
-``

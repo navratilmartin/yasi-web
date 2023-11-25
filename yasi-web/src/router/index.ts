@@ -8,14 +8,14 @@ const routes = [
     component: Default,
     children: [
       {
-        path: '/groups',
-        name: 'Groups',
+        path: '',
+        name: 'Home',
         component: () => import( '@/views/Home.vue'),
       },
       {
-        path: '',
-        name: 'Home',
-        component: () => import( '@/views/About.vue'),
+        path: '/groups',
+        name: 'Groups',
+        component: () => import( '@/views/Groups.vue'),
       },
       {
         path: '/login',
@@ -36,24 +36,19 @@ const routes = [
         path: '/photos',
         name: 'Photos',
         component: () => import('@/views/Photos.vue')
+      },
+      {
+        path: '/skaut',
+        name: 'Skaut',
+        component: () => import('@/views/Skaut.vue')
+      },
+      {
+        path: "/:pathMatch(.*)*", 
+        redirect: '/',
       }
-
     ],
   },
-  {
-    path: '/groups',
-    component: Default,
-    children: [
-      {path: '',
-      name: 'Groups',
-      component: () => import('@/views/Groups.vue')
-    },
-    ],
-  },
-  {
-    path: "/:pathMatch(.*)*", 
-    redirect: '/',
-  }
+  
 ]
 
 const router = createRouter({
@@ -66,7 +61,7 @@ router.beforeEach((to, from, next) => {
   const userEmail = localStorage.getItem('userEmail'); 
 
   const specificEmail = 'martinacek.n@gmail.com'; 
-  const publicPages = ['/login']; 
+  const publicPages = ['/login', '/skaut']; 
   const authRequired = !publicPages.includes(to.path);
 
   if (isAuthenticated) {

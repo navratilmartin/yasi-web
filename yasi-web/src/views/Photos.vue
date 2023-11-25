@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue';
 import AppBar from '@/components/AppBar.vue'
+import Footer from '@/components/Footer.vue';
 
 
 onMounted(() => {
@@ -25,6 +26,7 @@ Photos
       </v-col> -->
     </v-row>
   </v-container>
+  <Footer/>
 </template>
 <style>
 
