@@ -20,7 +20,7 @@
                     <path d="M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z" />
                 </svg>
             </router-link>
-            <div class="menu-item" @click="handleSignOut">
+            <div class="menu-item" @click="handleSignOut" style="scale: 1.15">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" color="red">
                     <path d="M17 8L15.6 9.4L17.2 11H9V13H17.2L15.6 14.6L17 16L21 12L17 8M5 5H12V3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H12V19H5V5Z" />
                 </svg>
@@ -142,7 +142,7 @@ $colors: #E281D3, #10c15c, #91c4f2, #9d79bc;
   border-radius: 50%;
   position: fixed;
   overflow: hidden;
-  background: url('@/assets/photos/B2DCB4B0-7CDF-40EF-B6F6-377075B3C04C.JPEG') no-repeat center center; 
+  background: url('@/assets/love.JPEG') no-repeat center center; 
   background-size: cover;
   height: 100px;
   width: 100px;

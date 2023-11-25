@@ -96,11 +96,16 @@ import AppBar from '@/components/AppBar.vue';
 import Footer from '@/components/Footer.vue';
 
 const photoList = [
-  {value: '/src/assets/photos/IMG_8309.jpg'},
-  {value: '/src/assets/photos/IMG_9318.jpg'},
-  {value: '/src/assets/photos/IMG_7297.jpg'},
-  {value: 'src/assets/photos/IMG_20220124111201.PNG'},
-  {value: '/src/assets/photos/IMG_7932.JPEG'},
+  {value: '/src/assets/photos/zima-cut.jpeg'}, 
+  {value: '/src/assets/photos/old-cut.jpeg'},
+  {value: '/src/assets/photos/hokej.jpeg'},
+  {value: '/src/assets/photos/egypt-cut.jpeg'},
+  {value: '/src/assets/photos/zrce2.jpeg'},
+  {value: '/src/assets/photos/narozeniny-cut.jpeg'},
+  {value: '/src/assets/photos/italie-cut.jpeg'},
+  {value: '/src/assets/photos/egypt2.jpeg'},
+  {value: '/src/assets/photos/old_party.jpeg'},
+  {value: '/src/assets/photos/zrce.jpg'},
 ];
 
 let index = Math.floor(Math.random() * photoList.length);
@@ -243,7 +248,7 @@ onUnmounted(() => {
   position: absolute;
   inset: 0; 
   opacity: 0;
-  scale: 1.11;
+  scale: 1.02;
   transition: 800ms opacity ease-in-out;
   transition-delay: 800ms;
   animation-delay: 1000ms;
@@ -253,7 +258,7 @@ onUnmounted(() => {
 .activeSlide {
   opacity: 1;
   transition-delay: 0ms;
-  scale: 1.11;
+  scale: 1.02;
   animation-delay: 1600ms;
   animation: slideToLeft 5000ms linear forwards;
 }
@@ -261,7 +266,7 @@ onUnmounted(() => {
 .slide > img {
   width: 100vw;
   height: 100vh;
-  object-position: 50% 80%;
+  object-position: 50% 0%;
   object-fit: cover;
   display: block;
 }
