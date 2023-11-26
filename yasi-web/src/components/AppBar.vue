@@ -1,5 +1,4 @@
 <template>
-        <!-- <button v-if="isAuthenticated" color="error" class="logoutButton" @click="handleSignOut">Odhlásit</button> -->
         <a href="/" class="circular-image" >
         </a>
         <v-alert v-if="authError" type="error" class="mt-2">{{ authError }}</v-alert>
@@ -37,7 +36,6 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter(); // Declare the router instance here
 const authError = ref('');
-const isAuthenticated = ref(localStorage.getItem('isAuthenticated') === 'true');
 
 const handleSignOut = async () => {
   try {
@@ -150,38 +148,6 @@ $colors: #E281D3, #10c15c, #91c4f2, #9d79bc;
   left: 15px;
 }
 // // NavBar css hotovo
-
-// .logoutButton {
-//   position: absolute;
-//   top: 0px;
-//   left: calc(100% - 190px);
-//   z-index: 1010;
-//   margin-top: 35px;
-//   width: 160px;
-  
-//   background-color: #F44336; /* Red color for the 'error' color prop */
-//   color: white;
-//   padding: 10px 20px;
-//   border: none;
-//   border-radius: 4px;
-//   font-size: 1em;
-//   cursor: pointer;
-//   transition: background-color 0.3s, box-shadow 0.3s;
-//   outline: none;
-
-//   &:hover {
-//     background-color: darken(#F44336, 10%); /* Slightly darker on hover */
-//     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
-//   }
-
-//   &:focus {
-//     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2); /* Shadow effect on focus */
-//   }
-
-//   &:active {
-//     background-color: lighten(#F44336, 5%); /* Slightly lighter on active (pressed) */
-//   }
-// }
 
 .absolute {
   position: fixed;

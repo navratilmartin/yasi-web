@@ -94,20 +94,24 @@ import emailjs from 'emailjs-com';
 import { watchEffect } from 'vue';
 import AppBar from '@/components/AppBar.vue';
 import Footer from '@/components/Footer.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter(); // Declare the router instance here
 
 const photoList = [
   {value: '/src/assets/photos/zima-cut.jpeg'}, 
   {value: '/src/assets/photos/old-cut.jpeg'},
+  {value: '/src/assets/photos/thajsko2.jpeg'},
   {value: '/src/assets/photos/hokej.jpeg'},
   {value: '/src/assets/photos/egypt-cut.jpeg'},
   {value: '/src/assets/photos/zrce2.jpeg'},
   {value: '/src/assets/photos/narozeniny-cut.jpeg'},
+  {value: '/src/assets/photos/thajsko1.jpg'},
   {value: '/src/assets/photos/italie-cut.jpeg'},
   {value: '/src/assets/photos/egypt2.jpeg'},
   {value: '/src/assets/photos/old_party.jpeg'},
   {value: '/src/assets/photos/zrce.jpg'},
-  {value: '/src/assets/photos/thajsko1.jpg'},
-  {value: '/src/assets/photos/thajsko2.jpeg'},
+  {value: '/src/assets/photos/svatba.jpg'},
   {value: '/src/assets/photos/slon.jpeg'},
 ];
 
@@ -217,6 +221,14 @@ onMounted(() => {
       menuItems.forEach(item => item.classList.remove('active'));
       document.getElementById('home')?.classList.add('active');
   }, 1)
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+  console.log('code2', code)
+
+  if (code) {
+    localStorage.setItem('code', code);
+    router.push({ name: 'Photos' })
+  }
 })
 
 onUnmounted(() => {

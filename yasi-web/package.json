@@ -10,6 +10,7 @@
     "@mdi/font": "7.0.96",
     "@types/gapi": "^0.0.47",
     "@types/gapi.auth2": "^0.0.60",
+    "axios": "^1.6.2",
     "emailjs-com": "^3.2.0",
     "firebase": "^10.6.0",
     "pinia": "^2.1.7",
