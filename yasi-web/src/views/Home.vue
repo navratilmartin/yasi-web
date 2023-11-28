@@ -99,20 +99,20 @@ import { useRouter } from 'vue-router';
 const router = useRouter(); // Declare the router instance here
 
 const photoList = [
-  {value: '/src/assets/photos/zima-cut.jpeg'}, 
-  {value: '/src/assets/photos/old-cut.jpeg'},
-  {value: '/src/assets/photos/thajsko2.jpeg'},
-  {value: '/src/assets/photos/hokej.jpeg'},
-  {value: '/src/assets/photos/egypt-cut.jpeg'},
-  {value: '/src/assets/photos/zrce2.jpeg'},
-  {value: '/src/assets/photos/narozeniny-cut.jpeg'},
-  {value: '/src/assets/photos/thajsko1.jpg'},
-  {value: '/src/assets/photos/italie-cut.jpeg'},
-  {value: '/src/assets/photos/egypt2.jpeg'},
-  {value: '/src/assets/photos/old_party.jpeg'},
-  {value: '/src/assets/photos/zrce.jpg'},
-  {value: '/src/assets/photos/svatba.jpg'},
-  {value: '/src/assets/photos/slon.jpeg'},
+  {value: '/assets/photos/zima-cut.jpeg'}, 
+  {value: '/assets/photos/old-cut.jpeg'},
+  {value: '/assets/photos/thajsko2.jpeg'},
+  {value: '/assets/photos/hokej.jpeg'},
+  {value: '/assets/photos/egypt-cut.jpeg'},
+  {value: '/assets/photos/zrce2.jpeg'},
+  {value: '/assets/photos/narozeniny-cut.jpeg'},
+  {value: '/assets/photos/thajsko1.jpg'},
+  {value: '/assets/photos/italie-cut.jpeg'},
+  {value: '/assets/photos/egypt2.jpeg'},
+  {value: '/assets/photos/old_party.jpeg'},
+  {value: '/assets/photos/zrce.jpg'},
+  {value: '/assets/photos/svatba.jpg'},
+  {value: '/assets/photos/slon.jpeg'},
 ];
 
 let index = Math.floor(Math.random() * photoList.length);

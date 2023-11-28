@@ -17,7 +17,7 @@ const isVideo = (mediaItem: any) => {
 };
 
 const clientId = '713102507327-bs9746cuoa8n309kfgsemfaeb3i65cu0.apps.googleusercontent.com'; // Replace with your client ID
-const redirectUri = 'http://localhost:3000'; // Replace with your redirect URI
+const redirectUri = 'https://yasi.cz'; // Replace with your redirect URI
 const scope = 'https://www.googleapis.com/auth/photoslibrary.readonly'; // Scope for Google Photos
 
 const isLoadingNextPage = ref(false);
