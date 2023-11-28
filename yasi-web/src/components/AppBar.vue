@@ -82,7 +82,7 @@ $colors: #E281D3, #10c15c, #91c4f2, #9d79bc;
   box-sizing: border-box;
   max-width: 100%;
   box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.2);
-  border-radius: 12px 12px 0 0;
+  border-radius: 12px;
   background: #ffffff;
   overflow: hidden;
 }
@@ -142,6 +142,7 @@ $colors: #E281D3, #10c15c, #91c4f2, #9d79bc;
   overflow: hidden;
   background: url('@/assets/love.JPEG') no-repeat center center; 
   background-size: cover;
+  z-index: 100;
   height: 100px;
   width: 100px;
   top: 10px;

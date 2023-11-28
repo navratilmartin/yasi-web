@@ -4,6 +4,18 @@ import AppBar from '@/components/AppBar.vue';
 import Footer from '@/components/Footer.vue';
 import axios from 'axios';
 
+const isMediaDialogOpen = ref(false);
+const selectedMedia = ref(); // Adjust this according to your media object structure
+
+const handleMediaClick = (mediaItem: any) => {
+  selectedMedia.value = mediaItem;
+  isMediaDialogOpen.value = true;
+};
+
+const isVideo = (mediaItem: any) => {
+  return mediaItem.mediaMetadata.video !== undefined
+};
+
 const clientId = '713102507327-bs9746cuoa8n309kfgsemfaeb3i65cu0.apps.googleusercontent.com'; // Replace with your client ID
 const redirectUri = 'http://localhost:3000'; // Replace with your redirect URI
 const scope = 'https://www.googleapis.com/auth/photoslibrary.readonly'; // Scope for Google Photos
@@ -23,15 +35,20 @@ const fetchAlbums = async () => {
     const response = await axios.get('https://photoslibrary.googleapis.com/v1/albums', {
       headers: { Authorization: `Bearer ${accessToken.value}` },
     });
-    albums.value = response.data.albums; // Array of album objects
-    console.log('albums fetched', albums.value)
+
+    // @ts-ignore
+    albums.value = response.data.albums.map(album => ({
+      ...album,
+      thumbnailUrl: album.coverPhotoBaseUrl, // Adjust dimensions as needed
+    }));
+
+    console.log('albums fetched', albums.value);
   } catch (error) {
     console.error('Error fetching albums:', error);
   }
 };
 
 watch(selectedAlbum , () => {
-  console.log('watch triggered')
   if (selectedAlbum.value) {
     photos.value = [];
     nextPageToken.value = null;
@@ -46,6 +63,7 @@ const fetchPhotosFromAlbum = async () => {
     const response = await axios.post('https://photoslibrary.googleapis.com/v1/mediaItems:search', {
       albumId: selectedAlbum.value.id,
       pageToken: nextPageToken.value,
+      pageSize: 20,
     }, {
       headers: { Authorization: `Bearer ${accessToken.value}` },
     });
@@ -99,6 +117,8 @@ const handleScroll = () => {
   }
 };
 
+const buttonPosition = ref('initial');
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
 
@@ -108,8 +128,11 @@ onMounted(() => {
     document.getElementById('photos')?.classList.add('active');
   }, 1);
 
+  setTimeout(() => {
+    buttonPosition.value = 'moved';
+  }, 300);
+
   const code = localStorage.getItem('code')
-  console.log('code2', code)
 
   handleAuthentication(code)
 });
@@ -122,19 +145,40 @@ onUnmounted(() => {
 <template>
   <body style="height: 100%">
 <AppBar/>
-  <v-container>
+  <v-container class="px-16" style="margin-top: 90px">
     <v-row>
       <v-col cols="12">
-        <v-btn @click="startOAuth">Načti fotky</v-btn>
-        <v-select
-          label="Select Album"
-          v-model="selectedAlbum"
-          :items="albums"
-          item-text="title"
-          item-value="id"
-          return-object
-        ></v-select>
+        <v-btn :class="{'initial-position': buttonPosition === 'initial', 'moved-position': buttonPosition === 'moved'}" 
+        color="primary"
+        @click="startOAuth">
+        Načti fotky
+      </v-btn>
       </v-col>
+    </v-row>
+
+    <!-- Grid layout for albums -->
+    <v-row v-if="albums.length > 0">
+      <v-col
+        v-for="album in albums"
+        :key="album.id"
+        cols="12" sm="6" md="4" lg="3"
+        class="px-5"
+      >
+        <v-card>
+          <v-img
+            :src="album.thumbnailUrl"
+            height="fit-content"
+            class="d-flex align-end"
+            style="cursor: pointer;"
+            @click="selectedAlbum = album"
+          >
+          <v-card-title class="overlay-title">
+            {{ album.title }}
+          </v-card-title>
+       </v-img>
+        </v-card>
+      </v-col>
+      <v-divider thickness="5" class="my-8" color="primary"></v-divider>
     </v-row>
 
     <!-- Grid layout for photos -->
@@ -142,7 +186,9 @@ onUnmounted(() => {
       <v-col
         v-for="photo in photos"
         :key="photo.id"
+        @click="handleMediaClick(photo)"
         cols="12" sm="6" md="4" lg="3"
+        class="px-5"
       >
         <img :src="photo.baseUrl" :alt="photo.filename" class="photo-grid-item">
       </v-col>
@@ -154,19 +200,47 @@ onUnmounted(() => {
       color="primary"
     ></v-progress-circular>
   </div>
+  <v-dialog v-model="isMediaDialogOpen" width="fit-content" max-width="800px">
+    <template v-slot:default="dialog">
+      <v-card>
+        <!-- Check if the selected media is a video -->
+        <template v-if="isVideo(selectedMedia)">
+          <video controls :src="selectedMedia.baseUrl + '=dv'" style="width: 100%; height: 80vh;"></video>
+        </template>
+        <!-- Else assume it's an image -->
+        <template v-else>
+          <img :src="selectedMedia.baseUrl" alt="Selected Media" style="width: 100%;" />
+        </template>
+      </v-card>
+    </template>
+  </v-dialog>
     <Footer/>
   </v-container>
 </body>
 </template>
 
 <style>
+.overlay-title {
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  color: white; /* White text */
+  width: 100%; /* Full width */
+  padding: 8px; /* Some padding */
+}
 
 .photo-grid-item {
   width: 100%;
-  height: auto;
+  height: 53vh;
   object-fit: cover; /* Adjusts the image size to cover the area */
   border-radius: 5px; /* Optional: for rounded corners */
   margin-bottom: 15px; /* Space between photos */
+  transition: all 0.3s ease-in-out;
+}
+
+.photo-grid-item:hover {
+  cursor: pointer;
+  transform: scale(1.03);
+  /* scale: 1.05;
+  transition: all 0.3s ease-in-out; */
 }
 
 .loading-indicator {
@@ -175,4 +249,19 @@ onUnmounted(() => {
   margin-top: 20px;
   margin-bottom: 50px;
 }
+
+.initial-position {
+  position: absolute;
+  top: 40px;
+  right: 195px;
+  transition: top 0.6s ease-in-out;
+}
+
+.moved-position {
+  position: absolute;
+  top: 75px;
+  right: 195px;
+  transition: top 0.6s ease-in-out;
+}
+
 </style>

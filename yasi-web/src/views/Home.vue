@@ -34,16 +34,16 @@
         <!-- Buttons for sending emails -->
         <v-row class="text-center mt-5">
           <v-col>
-            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('comeOver')">Come Over</v-btn>
+            <v-btn color="primary" class="larger-button ma-2" @click="() => startSendingEmail('comeOver')">Come Over</v-btn>
           </v-col>
           <v-col>
-            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('buyFood')">Buy yummi</v-btn>
+            <v-btn color="primary" class="larger-button ma-2" @click="() => startSendingEmail('buyFood')">Buy yummi</v-btn>
           </v-col>
           <v-col>
-            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('call')">Call</v-btn>
+            <v-btn color="primary" class="larger-button ma-2" @click="() => startSendingEmail('call')">Call</v-btn>
           </v-col>
           <v-col>
-            <v-btn color="primary" class="ma-2" @click="() => startSendingEmail('<3')">💗</v-btn>
+            <v-btn color="primary" class="larger-button ma-2" @click="() => startSendingEmail('<3')">💗</v-btn>
           </v-col>
         </v-row>
         <v-dialog
@@ -300,7 +300,7 @@ onUnmounted(() => {
   margin: 8px;
 }
 
-.v-btn {
+.larger-button {
   width: 200px; /* Set button width */
   height: 50px; /* Set button height */
   font-size: 16px; /* Set font size */
