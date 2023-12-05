@@ -14,15 +14,15 @@ type MenuItem = {
 };
 
 const items = ref<MenuItem[]>([
-    { year: "2011", title: 'V roce 2011 jsme se poprvé bavili', text: '', thumbnail: '/assets/', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-video', color: 'primary' },
-    { year: "2014", title: 'Začátek', text: 'V roce 2011 jsme se poprvé bavili.', thumbnail: '/assets/IMG_1188.JPG', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-video', color: 'primary' },
-    { year: "2016", title: 'Postupně jsme si byli blíž a blíž', text: '', thumbnail: 'src/assets/zrcadlo-sebrov.jpg', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-video', color: 'primary' },
-    { year: "2018", title: 'Až se z nás stali nejlepší kamarádi', text: '', thumbnail: 'src/assets/praha.jpeg', videoUrl: 'https://www.youtube.com/embed/WBbEEmF6hhM', icon: 'mdi-video', color: 'primary' },
-    { year: "2020", title: 'A později i víc než kamarádi... 💖28. 12. 2020💖', text: '', thumbnail: '/assets/love.jpeg', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-heart', color: 'primary' },
-    { year: "2021", title: 'Egypt - Naše první traveling experience spolu', text: '', thumbnail: '/assets/egypt.jpeg', videoUrl: 'https://www.youtube.com/embed/QeY_4iimrTI', icon: 'mdi-mosque', color: 'primary' },
+    { year: "2011", title: 'V roce 2011 jsme se poprvé bavili', text: '', thumbnail: '/assets/young.jpg', videoUrl: 'https://www.youtube.com/embed/-ty6MkKT13c', icon: 'mdi-account-circle', color: 'primary' },
+    { year: "2014", title: 'Skrze hudbu poznáš člověka...', text: '', thumbnail: '/assets/mesic.jpeg', videoUrl: 'https://www.youtube.com/embed/WBbEEmF6hhM', icon: 'mdi-account-cowboy-hat', color: 'primary' },
+    { year: "2017", title: 'Postupně jsme si byli blíž a blíž', text: '', thumbnail: '/assets/koupelna.jpeg', videoUrl: 'https://www.youtube.com/embed/2FnIi3IszEM', icon: 'mdi-account-heart', color: 'primary' },
+    { year: "2019", title: 'Až se z nás stali nejlepší kamarádi', text: '', thumbnail: '/assets/praha.jpeg', videoUrl: 'https://www.youtube.com/embed/8es5Y5ETNlU', icon: 'mdi-all-inclusive', color: 'primary' },
+    { year: "2020", title: 'A později i víc než kamarádi... 💖28. 12.💖', text: '', thumbnail: '/assets/love.jpeg', videoUrl: 'https://www.youtube.com/embed/TCVif2qj0lc', icon: 'mdi-heart', color: 'primary' },
+    { year: "2021", title: 'Egypt - Naše první traveling experience', text: '', thumbnail: '/assets/egypt.jpeg', videoUrl: 'https://www.youtube.com/embed/QeY_4iimrTI', icon: 'mdi-mosque', color: 'primary' },
     { year: "2022", title: 'Začátek tvojí Tiktok kariéry', text: '', thumbnail: '/assets/tiktok1.jpeg', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-cellphone', color: 'primary' },
-    { year: "2023", title: 'Thajsko - náš zatím nejdelší a nejlepší výlet✈️', text: '', thumbnail: '/assets/slon.jpeg', videoUrl: 'https://www.youtube.com/embed/Vjex-pZXa4U', icon: 'mdi-plane-car', color: 'primary' },
-    { year: "?", title: '...', text: '', thumbnail: '/assets/IMG_1188.JPG', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-road', color: 'primary' },
+    { year: "2023", title: 'Thajsko - náš nejdelší a nejlepší výlet✈️', text: '', thumbnail: '/assets/slon1.jpeg', videoUrl: 'https://www.youtube.com/embed/Vjex-pZXa4U', icon: 'mdi-plane-car', color: 'primary' },
+    { year: "?", title: '...', text: '', thumbnail: '/assets/face.jpeg', videoUrl: 'https://www.youtube.com/embed/fmCFZRfvca4', icon: 'mdi-road', color: 'primary' },
     ]);
 
 const dialog = ref(false);
@@ -67,12 +67,14 @@ onMounted(() => {
                 ></div>
             </template>
 
-            <v-card color="#e8d9e3" width="500px">
-                <v-card-title  :class="`bg-${item.color}`">{{ item.title }}</v-card-title>
+            <v-card color="#e8d9e3" width="400px">
+                <v-card-title  :class="`bg-${item.color}`" class="d-flex justify-center">{{ item.title }}</v-card-title>
                 <v-card-text class="ma-3">{{ item.text }}</v-card-text>
-                <v-avatar size="128px" class="ml-3 mb-4">
-                    <v-img :src="item.thumbnail" class="video-thumbnail" @click="() => showDialog(item)"></v-img>
-                </v-avatar>
+                <div class="d-flex justify-center">
+                    <v-avatar size="250px" class="mb-6">
+                        <v-img :src="item.thumbnail" class="video-thumbnail" @click="() => showDialog(item)"></v-img>
+                    </v-avatar>
+                </div>
             </v-card>
 
             </v-timeline-item>

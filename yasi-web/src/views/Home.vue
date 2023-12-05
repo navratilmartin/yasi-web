@@ -19,33 +19,26 @@
               <img id='img' src="">
             </div>
             
-            <v-card class="pa-5 mt-5">
+            <v-card class="pa-5 mt-5 mx-16">
               <v-card-title class="text-h5">
-                Special Birthday Wishes!
+                Všechno nejlepší, Yasinko! 💖
               </v-card-title>
               <v-card-text>
-                <p>Happy Birthday to the most amazing person in my life! 🎉</p>
-                <p>May your day be filled with joy, laughter, and all the love you deserve.</p>
+                <p>Všechno nejlepší tomu nejúžasnějšímu člověku, který kdy existoval. 🎉</p>
+                <p>Jsi neskutečně vtipná, chytrá, krásná, hodná, užásná osoba, kterou budu vždycky milovat. 🙈</p>
+                <p>Zasloužíš si jenom to nejlepší na světě, abys byla vždycky spokojená a nikdu smutná. 😍</p>
               </v-card-text>
             </v-card>
           </v-col>
         </v-row>
 
         <!-- Buttons for sending emails -->
-        <v-row class="text-center mt-5">
-          <v-col>
-            <v-btn color="primary" class="larger-button ma-2" @click="() => startSendingEmail('comeOver')">Come Over</v-btn>
-          </v-col>
-          <v-col>
-            <v-btn color="primary" class="larger-button ma-2" @click="() => startSendingEmail('buyFood')">Buy yummi</v-btn>
-          </v-col>
-          <v-col>
-            <v-btn color="primary" class="larger-button ma-2" @click="() => startSendingEmail('call')">Call</v-btn>
-          </v-col>
-          <v-col>
-            <v-btn color="primary" class="larger-button ma-2" @click="() => startSendingEmail('<3')">💗</v-btn>
-          </v-col>
-        </v-row>
+          <div class="d-flex justify-space-evenly my-4 px-16" >
+            <v-btn color="primary" class="larger-button my-2" @click="() => startSendingEmail('comeOver')">Come Over</v-btn>
+            <v-btn color="primary" class="larger-button my-2" @click="() => startSendingEmail('buyFood')">Buy yummi</v-btn>
+            <v-btn color="primary" class="larger-button my-2" @click="() => startSendingEmail('call')">Call</v-btn>
+            <v-btn color="primary" class="larger-button my-2" @click="() => startSendingEmail('<3')">💗</v-btn>
+          </div>
         <v-dialog
           v-model="isDialogOpen"
           width="800px"

@@ -140,7 +140,7 @@ $colors: #E281D3, #10c15c, #91c4f2, #9d79bc;
   border-radius: 50%;
   position: fixed;
   overflow: hidden;
-  background: url('@/assets/love.JPEG') no-repeat center center; 
+  background: url('/assets/love.jpeg') no-repeat center center; 
   background-size: cover;
   z-index: 100;
   height: 100px;
