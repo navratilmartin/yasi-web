@@ -34,7 +34,6 @@ const showDialog = (item: MenuItem) => {
 };
 
 onMounted(() => {
-    // 
   setTimeout(() => {
       const menuItems = document.querySelectorAll('.menu-item');
       menuItems.forEach(item => item.classList.remove('active'));

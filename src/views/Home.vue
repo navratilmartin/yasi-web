@@ -89,7 +89,7 @@ import AppBar from '@/components/AppBar.vue';
 import Footer from '@/components/Footer.vue';
 import { useRouter } from 'vue-router';
 
-const router = useRouter(); // Declare the router instance here
+const router = useRouter(); 
 
 const photoList = [
   {value: '/assets/zima-cut.jpeg'}, 
@@ -200,11 +200,9 @@ const sendEmail = (messageType: MessageType, message: string) => {
     .then((response) => {
       loading.value = false;
       snackbar.value = { show: true, message: 'Email byl v pořádku odeslán! 🎉', succesful: true };
-      console.log('SUCCESS!', response.status, response.text);
     }, (error) => {
       loading.value = false;
       snackbar.value = { show: true, message: 'Email se nepodařilo odeslat. 😵', succesful: false };
-      console.log('FAILED...', error);
     });
 };
 
@@ -216,7 +214,6 @@ onMounted(() => {
   }, 1)
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
-  console.log('code2', code)
 
   if (code) {
     localStorage.setItem('code', code);
@@ -231,20 +228,18 @@ onUnmounted(() => {
 
 <style lang="scss">
 
-/* Landing Page Styles */
-
 @keyframes slideToLeft {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-1%); /* Adjust this value as needed */
+    transform: translateX(-1%);
   }
 }
 
 @keyframes slideBack {
   0% {
-    transform: translateX(-1%); /* Adjust this value as needed */
+    transform: translateX(-1%); 
   }
   100% {
     transform: translateX(0);
@@ -294,8 +289,8 @@ onUnmounted(() => {
 }
 
 .larger-button {
-  width: 200px; /* Set button width */
-  height: 50px; /* Set button height */
-  font-size: 16px; /* Set font size */
+  width: 200px; 
+  height: 50px; 
+  font-size: 16px;
 }
 </style>

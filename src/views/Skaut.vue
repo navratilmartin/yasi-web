@@ -12,7 +12,6 @@
     <!-- <v-btn @click="deleteUsers()"> -->
         <!-- </v-btn> -->
 
-  
     <div>
       <v-btn @click="fetchUsers">Load Users</v-btn>
       <ul>
@@ -108,7 +107,7 @@
   
       const result = await response.json();
       console.log(result);
-      fetchUsers(); // Fetch all users again after adding
+      fetchUsers(); 
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
     }
@@ -139,12 +138,10 @@
 
     const result = await response.json();
     console.log(result);
-    fetchUsers(); // Fetch all users again after deletion
+    fetchUsers();
   } catch (error) {
     console.error('There was a problem with the delete operation:', error);
   }
 };
-  
-  // Optionally, fetch users when the component mounts
   onMounted(fetchUsers);
   </script>

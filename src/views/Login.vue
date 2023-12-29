@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useAuthState } from '@/composables/useAuthState';
 import { signIn} from '../services/firebase/firebaseAuthService';
 import { useRouter } from 'vue-router';
-
-const { currentUser } = useAuthState();
 
 const userEmail = ref('');
 const userPassword = ref('');
@@ -65,9 +62,4 @@ const handleLogin = async () => {
         </v-card-text>
       </v-card>
     </v-dialog>
-  <!-- <div>
-    <p v-if="currentUser">User is logged in</p>
-    <p v-else>User is not logged in</p>
-    <p>{{ currentUser }}</p>
-  </div> -->
 </template>

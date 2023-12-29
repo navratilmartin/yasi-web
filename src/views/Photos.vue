@@ -5,7 +5,7 @@ import Footer from '@/components/Footer.vue';
 import axios from 'axios';
 
 const isMediaDialogOpen = ref(false);
-const selectedMedia = ref(); // Adjust this according to your media object structure
+const selectedMedia = ref();
 
 const handleMediaClick = (mediaItem: any) => {
   selectedMedia.value = mediaItem;
@@ -16,9 +16,10 @@ const isVideo = (mediaItem: any) => {
   return mediaItem.mediaMetadata.video !== undefined
 };
 
-const clientId = '713102507327-bs9746cuoa8n309kfgsemfaeb3i65cu0.apps.googleusercontent.com'; // Replace with your client ID
-const redirectUri = 'https://yasi.cz'; // Replace with your redirect URI
-const scope = 'https://www.googleapis.com/auth/photoslibrary.readonly'; // Scope for Google Photos
+const clientId = import.meta.env.VITE_CLIENT_ID
+const redirectUri = import.meta.env.VITE_REDIRECT_URI;
+const scope = import.meta.env.VITE_SCOPE;
+const client_secret = import.meta.env.VITE_CLIENT_SECRET
 
 const isLoadingNextPage = ref(false);
 
@@ -39,12 +40,10 @@ const fetchAlbums = async () => {
     // @ts-ignore
     albums.value = response.data.albums.map(album => ({
       ...album,
-      thumbnailUrl: album.coverPhotoBaseUrl, // Adjust dimensions as needed
+      thumbnailUrl: album.coverPhotoBaseUrl, 
     }));
 
-    console.log('albums fetched', albums.value);
   } catch (error) {
-    console.error('Error fetching albums:', error);
   }
 };
 
@@ -58,7 +57,7 @@ watch(selectedAlbum , () => {
 
 const fetchPhotosFromAlbum = async () => {
   if (!selectedAlbum.value) return;
-  isLoadingNextPage.value = true; // Stop loading
+  isLoadingNextPage.value = true;
   try {
     const response = await axios.post('https://photoslibrary.googleapis.com/v1/mediaItems:search', {
       albumId: selectedAlbum.value.id,
@@ -67,16 +66,18 @@ const fetchPhotosFromAlbum = async () => {
     }, {
       headers: { Authorization: `Bearer ${accessToken.value}` },
     });
-    photos.value.push(...response.data.mediaItems); // Append new photos
-    nextPageToken.value = response.data.nextPageToken; // Update the next page token
+    photos.value.push(...response.data.mediaItems); 
+    nextPageToken.value = response.data.nextPageToken; 
   } catch (error) {
-    console.error('Error fetching photos from album:', error);
   } finally {
-    isLoadingNextPage.value = false; // Stop loading
+    isLoadingNextPage.value = false; 
   }
 };
 
 const startOAuth = () => {
+  if(!clientId || !redirectUri || !scope) {
+    return
+  }
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline`;
   window.location.href = authUrl;
 };
@@ -86,17 +87,14 @@ const exchangeCodeForToken = async (code:string) => {
     const response = await axios.post('https://oauth2.googleapis.com/token', {
       code: code,
       client_id: clientId,
-      client_secret: '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',
+      client_secret: client_secret,
       redirect_uri: redirectUri,
       grant_type: 'authorization_code',
     });
 
     accessToken.value = response.data.access_token;
-    // Optionally, store the access token in localStorage or Vuex for further use
     return accessToken.value;
   } catch (error) {
-    console.error('Error during token exchange:', error);
-    return null;
   }
 };
 
@@ -105,14 +103,17 @@ const handleAuthentication = async (code:string | null) => {
   const token = await exchangeCodeForToken(code);
   if (token) {
     await fetchAlbums();
-  } else {
-    console.error('Failed to authenticate');
   }
 };
 
 const handleScroll = () => {
-  const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight;
-  if (nearBottom && nextPageToken.value) {
+  const scrollPosition = window.innerHeight + window.scrollY;
+  const threshold = 100;
+  const totalHeight = document.documentElement.scrollHeight;
+
+  const nearBottom = scrollPosition >= totalHeight - threshold;
+
+  if (nearBottom && nextPageToken.value && !isLoadingNextPage.value) {
     fetchPhotosFromAlbum();
   }
 };
@@ -207,7 +208,6 @@ onUnmounted(() => {
         <template v-if="isVideo(selectedMedia)">
           <video controls :src="selectedMedia.baseUrl + '=dv'" style="width: 100%; height: 80vh;"></video>
         </template>
-        <!-- Else assume it's an image -->
         <template v-else>
           <img :src="selectedMedia.baseUrl" alt="Selected Media" style="width: 100%;" />
         </template>
@@ -221,26 +221,24 @@ onUnmounted(() => {
 
 <style>
 .overlay-title {
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-  color: white; /* White text */
-  width: 100%; /* Full width */
-  padding: 8px; /* Some padding */
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white; 
+  width: 100%;
+  padding: 8px;
 }
 
 .photo-grid-item {
   width: 100%;
   height: 53vh;
-  object-fit: cover; /* Adjusts the image size to cover the area */
-  border-radius: 5px; /* Optional: for rounded corners */
-  margin-bottom: 15px; /* Space between photos */
+  object-fit: cover;
+  border-radius: 5px;
+  margin-bottom: 15px;
   transition: all 0.3s ease-in-out;
 }
 
 .photo-grid-item:hover {
   cursor: pointer;
   transform: scale(1.03);
-  /* scale: 1.05;
-  transition: all 0.3s ease-in-out; */
 }
 
 .loading-indicator {
