@@ -1,42 +1,24 @@
-# Project Title
+# Yasi-web
 
-This is a small web application that I created as a birthday gift for my girlfriend.
+This readme covers a small web application that I created as a birthday gift for my lovely girlfriend ❤.
 
-## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-### Prerequisites
-
-What things you need to install the software and how to install them:
-
-- Node.js
-- npm
-
-### Installing
-
-A step by step series of examples that tell you how to get a development environment running:
-
-1. Clone the repository
-2. Install dependencies with `npm install`
-3. Start the development server with `npm run serve`
+## Getting started
+- The app is deployed at [yasi.cz](https://yasi.cz/)
+- To log in you can use a test account
+    - Login: _`test@gmail.com`_
+    - Password: _`password`_
 
 ## Built With
 
-- [Vue.js](https://vuejs.org/) - The Progressive JavaScript Framework
-- [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript at Any Scale
-- [Firebase](https://firebase.google.com/) - App development platform
+- [Vue.js](https://vuejs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Firebase](https://firebase.google.com/)
 
-## Authors
-
-- Your Name
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-- Hat tip to anyone whose code was used
-- Inspiration
-- etc
+## Screenshots
+![](./images/01.png)
+![](./images/02.png)
+![](./images/03.png)
+![](./images/04.png)
+![](./images/05.png)
+![](./images/06.png)
+![](./images/07.png)
