@@ -15,11 +15,6 @@ onUnmounted(() => {
   unsubscribe();
 });
 
-watchEffect(() => {
-  console.log('useAuthState.ts', currentUser.value)
-
-})
-
 export function useAuthState() {
   return { currentUser };
 }

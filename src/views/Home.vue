@@ -214,6 +214,7 @@ onMounted(() => {
   }, 1)
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
+  localStorage.removeItem('code')
 
   if (code) {
     localStorage.setItem('code', code);

@@ -139,7 +139,6 @@ import {ref} from 'vue'
 
 const print = (x: any) => console.log(model.value)
 const model = ref<number[]>([])
-console.log(model.value)
 const isVisible = ref(true)
 
 const searchQuery = ""

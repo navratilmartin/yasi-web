@@ -69,6 +69,7 @@ const fetchPhotosFromAlbum = async () => {
     photos.value.push(...response.data.mediaItems); 
     nextPageToken.value = response.data.nextPageToken; 
   } catch (error) {
+    console.log(error)
   } finally {
     isLoadingNextPage.value = false; 
   }
@@ -95,6 +96,7 @@ const exchangeCodeForToken = async (code:string) => {
     accessToken.value = response.data.access_token;
     return accessToken.value;
   } catch (error) {
+    console.log(error)
   }
 };
 
