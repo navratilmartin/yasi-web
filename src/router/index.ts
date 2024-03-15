@@ -43,6 +43,11 @@ const routes = [
         component: () => import('@/views/Skaut.vue')
       },
       {
+        path: '/skaut/admin',
+        name: 'SkautAdmin',
+        component: () => import('@/views/Skaut-admin.vue')
+      },
+      {
         path: "/:pathMatch(.*)*", 
         redirect: '/',
       }
@@ -61,7 +66,7 @@ router.beforeEach((to, from, next) => {
   const userEmail = localStorage.getItem('userEmail'); 
 
   const specificEmail = 'martinacek.n@gmail.com'; 
-  const publicPages = ['/login', '/skaut']; 
+  const publicPages = ['/login', '/skaut', '/skaut/admin']; 
   const authRequired = !publicPages.includes(to.path);
 
   if (isAuthenticated) {

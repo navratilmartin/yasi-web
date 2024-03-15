@@ -1,18 +1,8 @@
 <template>
-    <v-form>
-      <v-text-field :error-messages="nameErrorMessage" v-model="name" label="Name"></v-text-field>
-      <v-text-field :error-messages="emailErrorMessage" v-model="email" label="Email" type="email"></v-text-field>
-      <v-btn @click="submit" :disabled="!isFormValid">Submit</v-btn>
-      <v-radio-group v-for="(item, index) in radioGroupsValues"
-        v-model="item.value">
-        <v-radio v-for="designProposalId in radioGroupOptions" :label="designProposalId.toString()" :value="designProposalId.toString()"></v-radio>
-    </v-radio-group>  
-    </v-form>
-
     <!-- <v-btn @click="deleteUsers()"> -->
         <!-- </v-btn> -->
 
-    <!-- <div>
+    <div>
       <v-btn @click="fetchUsers">Load Users</v-btn>
       <ul>
         <li v-for="user in users" :key="user.id">
@@ -21,13 +11,12 @@
         </li>   
     </ul>
     <p> {{ votingResultsMap }}</p>
-</div> -->
+</div>
 </template>
 
 <script setup lang="ts">
   import { ref, onMounted, computed, watchEffect } from 'vue';
   import { useMapStore } from '@/store/MapStore'
-  import { useRouter } from 'vue-router';
 
   const mapStore = useMapStore()
   
@@ -84,12 +73,9 @@
     console.log(mapStore.mapa)
   })
 
-  const router = useRouter(); 
-
   const submit = () => {
     console.log('submited', radioGroupsValues.value);
     addUser();
-    router.push({ name: 'Home' });
   }
   
   const addUser = async () => {
