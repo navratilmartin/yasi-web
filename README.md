@@ -19,6 +19,5 @@ This readme covers a small web application that I created as a birthday gift for
 ![](./images/02.png)
 ![](./images/03.png)
 ![](./images/04.png)
-![](./images/05.png)
 ![](./images/06.png)
 ![](./images/07.png)
